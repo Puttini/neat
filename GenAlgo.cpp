@@ -7,8 +7,8 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
    pAddNode(0.03),
    pAddConnection(0.05),
    pChangeWeight(0.1),
-   pDisableConnection(0.05),
-   pEnableConnection(0.1),
+   pDisableConnection(0.01),
+   pEnableConnection(0.05),
 
    defaultWeight(0.5),
    dWeight(0.1),
@@ -23,4 +23,72 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
 
     for ( int p = 0 ; p < population ; ++p )
         genomes.emplace_back( nbInputs, nbOutputs );
+}
+
+bool GenAlgo::mutate_all()
+{
+    for ( Graph& g : genomes )
+        mutate(g);
+}
+
+bool GenAlgo::mutate( Graph& g )
+{
+    std::uniform_real_distribution<float> dist(0,1);
+    bool mutated = false;
+
+    if ( dist(rng) < pAddNode )
+    {
+        if ( addNode(g) )
+            mutated = true;
+    }
+
+    if ( dist(rng) < pAddConnection )
+    {
+        if ( addConnection(g) )
+            mutated = true;
+    }
+
+    for ( Connection& c : g.connections )
+    {
+        if ( c.enabled )
+        {
+            if ( dist(rng) < pDisableConnection )
+            {
+                c.enabled = false;
+                mutated = true;
+            }
+        }
+        else
+        {
+            if ( dist(rng) < pEnableConnection )
+            {
+                c.enabled = true;
+                mutated = true;
+            }
+        }
+
+        if ( dist(rng) < pChangeWeight )
+            changeWeight(c);
+    }
+}
+
+void GenAlgo::setSeed( int seed )
+{
+    rng.seed(seed);
+}
+
+//TODO
+bool GenAlgo::addNode( Graph& g )
+{
+    return false;
+}
+
+bool GenAlgo::addConnection( Graph& g )
+{
+    return false;
+}
+
+bool GenAlgo::changeWeight( Connection& c )
+{
+    return false;
 }

@@ -12,9 +12,11 @@ struct Connection
     float w;
     int inno;
 
+    bool enabled;
+
     Connection() = default;
     Connection( int n0, int n1, float w, int inno = 0 )
-     : n0(n0), n1(n1), w(w), inno(inno)
+     : n0(n0), n1(n1), w(w), inno(inno), enabled(true)
     {}
 };
 

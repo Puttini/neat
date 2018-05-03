@@ -25,8 +25,11 @@ int Graph::getNbNodes() const
     std::set<int> nodes;
     for ( const Connection& c : connections )
     {
-        nodes.insert( c.n0 );
-        nodes.insert( c.n1 );
+        if ( c.enabled )
+        {
+            nodes.insert( c.n0 );
+            nodes.insert( c.n1 );
+        }
     }
 
     return nodes.size();
@@ -36,10 +39,15 @@ int Graph::getMaxNode() const
 {
     int maxNode = 0;
     for ( const Connection& c : connections )
-        maxNode = std::max( std::max(
-                    maxNode,
-                    c.n0 ),
-                    c.n1 );
+    {
+        if ( c.enabled )
+        {
+            maxNode = std::max( std::max(
+                        maxNode,
+                        c.n0 ),
+                        c.n1 );
+        }
+    }
 
     return maxNode;
 }
@@ -61,7 +69,7 @@ std::vector<int> Graph::getLayers() const
 
         for ( const Connection& c : connections )
         {
-            if ( layers[c.n0] != -1 )
+            if ( c.enabled && layers[c.n0] != -1 )
             {
                 int n1layer = layers[c.n0] + 1;
                 if ( n1layer > layers[c.n1] )

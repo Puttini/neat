@@ -24,12 +24,24 @@ def drawGraph( graph ):
             currentPosPerLayer[l] -= 1
 
     for connection in graph.connections:
-        g.add_edge(
-                connection.n0,
-                connection.n1,
-                weight = connection.w )
+        if connection.enabled and connection.w != 0:
+            g.add_edge(
+                    connection.n0,
+                    connection.n1,
+                    color = 'r' if connection.w < 0 else 'g',
+                    weight = connection.w )
+        else:
+            g.add_edge(
+                    connection.n0,
+                    connection.n1,
+                    color = (0.7,0.7,0.7),
+                    weight = 1 )
 
-    nx.draw( g, with_labels=True, pos=pos )
+    edges = g.edges()
+    colors = [ g[u][v]['color'] for u,v in edges ]
+    widths = [ 2*g[u][v]['weight'] for u,v in edges ]
+
+    nx.draw( g, with_labels=True, pos=pos, edge_color=colors, width=widths )
     return plt
 
 if __name__ == "__main__":

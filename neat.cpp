@@ -24,6 +24,7 @@ PYBIND11_MODULE( neat, m )
     connection.def_readwrite( "n1", &Connection::n1 );
     connection.def_readwrite( "w", &Connection::w );
     connection.def_readwrite( "inno", &Connection::inno );
+    connection.def_readwrite( "enabled", &Connection::enabled );
     connection.def( "__repr__", []( const Connection& c )
             {
                 std::stringstream ss;
@@ -68,6 +69,12 @@ PYBIND11_MODULE( neat, m )
     genalgo.def_readonly( "current_inno", &GenAlgo::current_inno );
     genalgo.def_readonly( "current_node", &GenAlgo::current_node );
     genalgo.def_readonly( "current_generation", &GenAlgo::current_generation );
-
     genalgo.def_readwrite( "genomes", &GenAlgo::genomes );
+
+    genalgo.def( "setSeed", &GenAlgo::setSeed );
+    genalgo.def( "mutate_all", &GenAlgo::mutate_all );
+    genalgo.def( "mutate", &GenAlgo::mutate );
+    genalgo.def( "addNode", &GenAlgo::addNode );
+    genalgo.def( "addConnection", &GenAlgo::addConnection );
+    genalgo.def( "changeWeight", &GenAlgo::changeWeight );
 }
