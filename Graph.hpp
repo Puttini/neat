@@ -1,16 +1,7 @@
 #include "types.hpp"
+#include <vector>
 
-struct Node
-{
-    int n;
-    int inno;
-
-    Node() = default;
-    Node( int n, int inno = 0 )
-     : n(n), inno(inno)
-    {}
-};
-
+// n0 -> n1
 struct Connection
 {
     int n0;
@@ -24,8 +15,21 @@ struct Connection
     {}
 };
 
+// A graph shall always have its inputs and outputs at the beginning
+// of its Node vector, with nodes[i].n = i
 struct Graph
 {
-    std::vector<Node> nodes;
     std::vector<Connection> connections;
+    int nbInputs;
+    int nbOutputs;
+
+
+    Graph() = default;
+    Graph( int nbInputs, int nbOutputs, bool init_connect = true );
+
+    int getNbNodes() const;
+    int getMaxNode() const;
+    std::vector<int> getLayers() const;
+    bool isInput( int n ) const;
+    bool isOutput( int n ) const;
 };
