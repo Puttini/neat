@@ -6,7 +6,8 @@ add_subdirectory( "pybind11" )
 include_directories( "eigen" )
 
 add_library( source STATIC
-    Graph.cpp )
+    Graph.cpp
+    GenAlgo.cpp )
 set_target_properties( source PROPERTIES COMPILE_FLAGS -fPIC )
 
 pybind11_add_module( neat neat.cpp )

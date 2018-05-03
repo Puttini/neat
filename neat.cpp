@@ -46,4 +46,28 @@ PYBIND11_MODULE( neat, m )
     graph.def( "getLayers", &Graph::getLayers );
     graph.def( "isInput", &Graph::isInput );
     graph.def( "isOutput", &Graph::isOutput );
+
+    // --- GenAlgo ---
+    py::class_<GenAlgo> genalgo( m, "GenAlgo" );
+    genalgo.def( py::init<>() );
+    genalgo.def( py::init<int,int,int>(),
+            py::arg( "nbInputs" ),
+            py::arg( "nbOutputs" ),
+            py::arg( "population" ) = 150 );
+    genalgo.def_readonly( "population", &GenAlgo::population );
+    genalgo.def_readwrite( "pAddNode", &GenAlgo::pAddNode );
+    genalgo.def_readwrite( "pAddConnection", &GenAlgo::pAddConnection );
+    genalgo.def_readwrite( "pChangeWeight", &GenAlgo::pChangeWeight );
+    genalgo.def_readwrite( "pDisableConnection", &GenAlgo::pDisableConnection );
+    genalgo.def_readwrite( "pEnableConnection", &GenAlgo::pEnableConnection );
+    genalgo.def_readwrite( "defaultWeight", &GenAlgo::defaultWeight );
+    genalgo.def_readwrite( "dWeight", &GenAlgo::dWeight );
+    genalgo.def_readwrite( "c12", &GenAlgo::c12 );
+    genalgo.def_readwrite( "c3", &GenAlgo::c3 );
+    genalgo.def_readwrite( "dThreshold", &GenAlgo::dThreshold );
+    genalgo.def_readonly( "current_inno", &GenAlgo::current_inno );
+    genalgo.def_readonly( "current_node", &GenAlgo::current_node );
+    genalgo.def_readonly( "current_generation", &GenAlgo::current_generation );
+
+    genalgo.def_readwrite( "genomes", &GenAlgo::genomes );
 }
