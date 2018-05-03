@@ -1,3 +1,6 @@
+#ifndef GRAPH_HPP
+#define GRAPH_HPP
+
 #include "types.hpp"
 #include <vector>
 
@@ -33,3 +36,5 @@ struct Graph
     bool isInput( int n ) const;
     bool isOutput( int n ) const;
 };
+
+#endif // GRAPH_HPP

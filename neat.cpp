@@ -6,11 +6,13 @@
 
 #include "types.hpp"
 #include "Graph.hpp"
+#include "GenAlgo.hpp"
 
 namespace py = pybind11;
 
 PYBIND11_MODULE( neat, m )
 {
+    // --- Connection ---
     py::class_<Connection> connection( m, "Connection" );
     connection.def( py::init<>() );
     connection.def( py::init<int,int,float,int>(),
@@ -30,6 +32,7 @@ PYBIND11_MODULE( neat, m )
                 return ss.str();
             });
 
+    // --- Graph ---
     py::class_<Graph> graph( m, "Graph" );
     graph.def( py::init<>() );
     graph.def( py::init<int,int,bool>(),
