@@ -55,4 +55,21 @@ if __name__ == "__main__":
             neat.Connection(3,2),
             neat.Connection(1,2) ]
 
-    drawGraph( my_graph ).show()
+    plt.subplot(1,2,1)
+    drawGraph( my_graph )
+
+# ---------------------------------------------------------------------------
+
+    ga = neat.GenAlgo( 2, 1, 1 )
+    ga.setSeed(0)
+    g0 = ga.genomes[0]
+
+    plt.subplot(2,2,2)
+    drawGraph( g0 )
+
+    ga.addNode( g0 )
+
+    plt.subplot(2,2,4)
+    drawGraph( g0 )
+
+    plt.show()

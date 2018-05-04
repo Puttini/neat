@@ -28,7 +28,10 @@ PYBIND11_MODULE( neat, m )
     connection.def( "__repr__", []( const Connection& c )
             {
                 std::stringstream ss;
-                ss << "<| Connection: " << c.n0 << " -> " << c.n1 << ", "
+                ss << "<| Connection: ";
+                if ( !c.enabled )
+                    ss << "DIS ";
+                ss << c.n0 << " -> " << c.n1 << ", "
                    << "w=" << c.w << ", inno = " << c.inno << " |>";
                 return ss.str();
             });

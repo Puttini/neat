@@ -74,6 +74,7 @@ std::vector<int> Graph::getLayers() const
                 int n1layer = layers[c.n0] + 1;
                 if ( n1layer > layers[c.n1] )
                 {
+                    assert( n1layer < connections.size() );
                     layers[c.n1] = n1layer;
                     changed = true;
                     lastLayer = std::max( lastLayer, n1layer );

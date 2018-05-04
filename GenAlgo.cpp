@@ -77,10 +77,35 @@ void GenAlgo::setSeed( int seed )
     rng.seed(seed);
 }
 
-//TODO
 bool GenAlgo::addNode( Graph& g )
 {
-    return false;
+    std::uniform_int_distribution<int> dist(0,g.connections.size()-1);
+
+    // The graph is always connected by construction
+    // and should mainly contain enabled connections,
+    // so this loop should be fast and correct
+    int cn = dist(rng);
+    while ( !g.connections[cn].enabled )
+        cn = dist(rng);
+
+    // Split this connection into 2 connections
+    g.connections[cn].enabled = false;
+
+    g.connections.emplace_back(
+            g.connections[cn].n0,
+            current_node,
+            g.connections[cn].w,
+            current_inno );
+    current_inno++;
+    g.connections.emplace_back(
+            current_node,
+            g.connections[cn].n1,
+            1,
+            current_inno );
+    current_inno++;
+    current_node++;
+
+    return true;
 }
 
 bool GenAlgo::addConnection( Graph& g )
