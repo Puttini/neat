@@ -15,7 +15,7 @@ def drawGraph( graph ):
     pos = {}
 
     # Construct Networkx Graph
-    g = nx.Graph()
+    g = nx.MultiDiGraph()
 
     for n, l in enumerate(layers):
         if l >= 0:
@@ -24,24 +24,34 @@ def drawGraph( graph ):
             currentPosPerLayer[l] -= 1
 
     for connection in graph.connections:
-        if connection.enabled and connection.w != 0:
-            g.add_edge(
-                    connection.n0,
-                    connection.n1,
-                    color = 'r' if connection.w < 0 else 'g',
-                    weight = connection.w )
+        if not connection.enabled:
+            c = (0.7,0.7,0.7)
+            w = 1
+        elif connection.w < 0:
+            c = (1.,0.,0.)
+            w = -connection.w
+        elif connection.w > 0:
+            c = (0.,1.,0.)
+            w = 1
         else:
-            g.add_edge(
-                    connection.n0,
-                    connection.n1,
-                    color = (0.7,0.7,0.7),
-                    weight = 1 )
+            c = (0.,0.,1.)
+            w = connection.w
+        w = min( max( w, 1 ), 5 )
+
+        g.add_edge(
+                connection.n0,
+                connection.n1,
+                color=c,
+                weight=w )
 
     edges = g.edges()
-    colors = [ g[u][v]['color'] for u,v in edges ]
-    widths = [ 2*g[u][v]['weight'] for u,v in edges ]
+    colors = [ g[u][v][0]['color'] for u,v in edges ]
+    widths = [ 2*g[u][v][0]['weight'] for u,v in edges ]
 
-    nx.draw( g, with_labels=True, pos=pos, edge_color=colors, width=widths )
+    try:
+        nx.draw( g, with_labels=True, pos=pos, edge_color=colors, width=widths )
+    except Exception:
+        import ipdb; ipdb.set_trace()
     return plt
 
 if __name__ == "__main__":
