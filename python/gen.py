@@ -20,9 +20,62 @@ def onlyAddNode():
             ga.addNode(g)
 
             plt.subplot(nbNodes+1,pop,p+(n+1)*pop+1)
-            drawGraph(g)
+            drawGraph(g, draw_dis=True)
 
-    plt.show()
+def onlyAddConnection():
+    pop = 3
+    nbConnections = 4
+
+    ga = GenAlgo( 2, 2, pop )
+    ga.setSeed(0)
+
+    for g in ga.genomes:
+        for _ in range(3):
+            ga.addNode(g)
+
+    for p in range(pop):
+        g = ga.genomes[p]
+
+        plt.subplot(nbConnections+1,pop,p+1)
+        drawGraph(g)
+
+        for n in range(nbConnections):
+            ga.addConnection(g)
+
+            plt.subplot(nbConnections+1,pop,p+(n+1)*pop+1)
+            drawGraph(g, draw_dis=True)
+
+def onlyChangeWeights():
+    nbRows = 4
+    nbCols = 3
+
+    ga = GenAlgo(2,2,1)
+    ga.setSeed(0)
+    g = ga.genomes[0]
+    for _ in range(4):
+        ga.addNode(g)
+
+    for row in range(nbRows):
+        for col in range(nbCols):
+            if row != 0 or col != 0:
+                for c in g.connections:
+                    ga.changeWeight(c)
+            plt.subplot(nbRows,nbCols,col+row*nbCols+1)
+            drawGraph(g, use_pos=True, draw_dis=False)
+
+    print( " --- Final connection weights ---" )
+    for c in g.connections:
+        if c.enabled:
+            print( "%d -> %d : %f" % (c.n0, c.n1, c.w) )
 
 if __name__ == "__main__":
+    plt.figure("Only adding nodes")
     onlyAddNode()
+
+    plt.figure("Only adding connections")
+    onlyAddConnection()
+
+    plt.figure("Only changing weights")
+    onlyChangeWeights()
+
+    plt.show()

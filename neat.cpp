@@ -66,8 +66,8 @@ PYBIND11_MODULE( neat, m )
     genalgo.def_readwrite( "pChangeWeight", &GenAlgo::pChangeWeight );
     genalgo.def_readwrite( "pDisableConnection", &GenAlgo::pDisableConnection );
     genalgo.def_readwrite( "pEnableConnection", &GenAlgo::pEnableConnection );
-    genalgo.def_readwrite( "defaultWeight", &GenAlgo::defaultWeight );
-    genalgo.def_readwrite( "dWeight", &GenAlgo::dWeight );
+    genalgo.def_readwrite( "defStdDev", &GenAlgo::defStdDev );
+    genalgo.def_readwrite( "relStdDev", &GenAlgo::relStdDev );
     genalgo.def_readwrite( "c12", &GenAlgo::c12 );
     genalgo.def_readwrite( "c3", &GenAlgo::c3 );
     genalgo.def_readwrite( "dThreshold", &GenAlgo::dThreshold );

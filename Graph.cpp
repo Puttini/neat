@@ -13,7 +13,7 @@ Graph::Graph( int nbInputs, int nbOutputs, bool init_connect )
         {
             for ( int k = 0 ; k < nbOutputs ; ++k )
             {
-                connections.emplace_back( j, nbInputs + k, 1.f, i );
+                connections.emplace_back( j, nbInputs + k, 0.f, i );
                 ++i;
             }
         }
@@ -93,8 +93,11 @@ std::vector<int> Graph::getLayers() const
 
     lastLayer++;
 
-    // Correct outputs
-    for ( int i = nbInputs ; i < nbInputs + nbOutputs ; ++i )
+    // Correct inputs and outputs
+    int i = 0;
+    for ( ; i < nbInputs ; ++i )
+        layers[i] = 0;
+    for ( ; i < nbInputs + nbOutputs ; ++i )
         layers[i] = lastLayer;
 
     return layers;

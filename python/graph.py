@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import neat
 
-def drawGraph( graph, use_pos=True ):
+def drawGraph( graph, use_pos=True, draw_dis=False ):
     # Compute position of nodes
     layers = graph.getLayers()
     nbLayers = layers[ graph.nbInputs ] + 1
@@ -24,7 +24,9 @@ def drawGraph( graph, use_pos=True ):
             currentPosPerLayer[l] -= 1
 
     for connection in graph.connections:
-        if not connection.enabled:
+        if not connection.enabled and not draw_dis:
+            continue
+        elif not connection.enabled:
             c = (0.7,0.7,0.7)
             w = 1
         elif connection.w < 0:
@@ -36,7 +38,7 @@ def drawGraph( graph, use_pos=True ):
         else:
             c = (0.,0.,1.)
             w = connection.w
-        w = min( max( w, 1 ), 5 )
+        w = min( max( 0.5*w, 0.3 ), 2 )
 
         g.add_edge(
                 connection.n0,
@@ -69,10 +71,10 @@ if __name__ == "__main__":
             neat.Connection(3,2),
             neat.Connection(1,2) ]
 
-    plt.subplot(2,2,1)
+    plt.subplot(2,2,3)
     drawGraph( my_graph )
 
-    plt.subplot(2,2,3)
+    plt.subplot(2,2,1)
     drawGraph( my_graph, use_pos=False )
 
 # ---------------------------------------------------------------------------
@@ -82,11 +84,11 @@ if __name__ == "__main__":
     g0 = ga.genomes[0]
 
     plt.subplot(2,2,2)
-    drawGraph( g0 )
+    drawGraph( g0, draw_dis=True )
 
     ga.addNode( g0 )
 
     plt.subplot(2,2,4)
-    drawGraph( g0 )
+    drawGraph( g0, draw_dis=True )
 
     plt.show()

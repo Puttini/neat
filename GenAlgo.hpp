@@ -15,8 +15,9 @@ struct GenAlgo
     float pDisableConnection;
     float pEnableConnection;
 
-    float defaultWeight;
-    float dWeight; // Variation of weights during mutation/init
+    int nbMaxTry;
+    float defStdDev;
+    float relStdDev;
     float c12, c3;
     float dThreshold;
 
