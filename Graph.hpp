@@ -35,6 +35,8 @@ struct Graph
     int getNbNodes() const;
     int getMaxNode() const;
     std::vector<int> getLayers() const;
+    SpMat<bool> getAdjacencyMatrix() const;
+    std::vector< std::pair<int,int> > getNbConnectionsPerNode() const;
     bool isInput( int n ) const;
     bool isOutput( int n ) const;
 };

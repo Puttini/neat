@@ -48,6 +48,8 @@ PYBIND11_MODULE( neat, m )
     graph.def_readwrite( "nbOutputs", &Graph::nbOutputs );
     graph.def( "getNbNodes", &Graph::getNbNodes );
     graph.def( "getLayers", &Graph::getLayers );
+    graph.def( "getAdjacencyMatrix", &Graph::getAdjacencyMatrix );
+    graph.def( "getNbConnectionsPerNode", &Graph::getNbConnectionsPerNode );
     graph.def( "isInput", &Graph::isInput );
     graph.def( "isOutput", &Graph::isOutput );
 

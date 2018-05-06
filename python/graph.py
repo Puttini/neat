@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import neat
 
-def drawGraph( graph ):
+def drawGraph( graph, use_pos=True ):
     # Compute position of nodes
     layers = graph.getLayers()
     nbLayers = layers[ graph.nbInputs ] + 1
@@ -49,7 +49,10 @@ def drawGraph( graph ):
     widths = [ 2*g[u][v][0]['weight'] for u,v in edges ]
 
     try:
-        nx.draw( g, with_labels=True, pos=pos, edge_color=colors, width=widths )
+        if use_pos:
+            nx.draw( g, with_labels=True, pos=pos, edge_color=colors, width=widths )
+        else:
+            nx.draw( g, with_labels=True, edge_color=colors, width=widths )
     except Exception:
         import ipdb; ipdb.set_trace()
     return plt
@@ -62,11 +65,15 @@ if __name__ == "__main__":
             neat.Connection(5,2),
             neat.Connection(0,3),
             neat.Connection(5,3),
+            neat.Connection(3,5),
             neat.Connection(3,2),
             neat.Connection(1,2) ]
 
-    plt.subplot(1,2,1)
+    plt.subplot(2,2,1)
     drawGraph( my_graph )
+
+    plt.subplot(2,2,3)
+    drawGraph( my_graph, use_pos=False )
 
 # ---------------------------------------------------------------------------
 
