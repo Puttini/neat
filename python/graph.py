@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import neat
 
-def drawGraph( graph ):
+def drawGraph( graph, use_pos=True, draw_dis=False ):
     # Compute position of nodes
     layers = graph.getLayers()
     nbLayers = layers[ graph.nbInputs ] + 1
@@ -15,7 +15,7 @@ def drawGraph( graph ):
     pos = {}
 
     # Construct Networkx Graph
-    g = nx.Graph()
+    g = nx.MultiDiGraph()
 
     for n, l in enumerate(layers):
         if l >= 0:
@@ -24,12 +24,39 @@ def drawGraph( graph ):
             currentPosPerLayer[l] -= 1
 
     for connection in graph.connections:
+        if not connection.enabled and not draw_dis:
+            continue
+        elif not connection.enabled:
+            c = (0.7,0.7,0.7)
+            w = 1
+        elif connection.w < 0:
+            c = (1.,0.,0.)
+            w = -connection.w
+        elif connection.w > 0:
+            c = (0.,1.,0.)
+            w = 1
+        else:
+            c = (0.,0.,1.)
+            w = connection.w
+        w = min( max( 0.5*w, 0.3 ), 2 )
+
         g.add_edge(
                 connection.n0,
                 connection.n1,
-                weight = connection.w )
+                color=c,
+                weight=w )
 
-    nx.draw( g, with_labels=True, pos=pos )
+    edges = g.edges()
+    colors = [ g[u][v][0]['color'] for u,v in edges ]
+    widths = [ 2*g[u][v][0]['weight'] for u,v in edges ]
+
+    try:
+        if use_pos:
+            nx.draw( g, with_labels=True, pos=pos, edge_color=colors, width=widths )
+        else:
+            nx.draw( g, with_labels=True, edge_color=colors, width=widths )
+    except Exception:
+        import ipdb; ipdb.set_trace()
     return plt
 
 if __name__ == "__main__":
@@ -40,7 +67,28 @@ if __name__ == "__main__":
             neat.Connection(5,2),
             neat.Connection(0,3),
             neat.Connection(5,3),
+            neat.Connection(3,5),
             neat.Connection(3,2),
             neat.Connection(1,2) ]
 
-    drawGraph( my_graph ).show()
+    plt.subplot(2,2,3)
+    drawGraph( my_graph )
+
+    plt.subplot(2,2,1)
+    drawGraph( my_graph, use_pos=False )
+
+# ---------------------------------------------------------------------------
+
+    ga = neat.GenAlgo( 2, 1, 1 )
+    ga.setSeed(0)
+    g0 = ga.genomes[0]
+
+    plt.subplot(2,2,2)
+    drawGraph( g0, draw_dis=True )
+
+    ga.addNode( g0 )
+
+    plt.subplot(2,2,4)
+    drawGraph( g0, draw_dis=True )
+
+    plt.show()

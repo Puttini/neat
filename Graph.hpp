@@ -12,9 +12,11 @@ struct Connection
     float w;
     int inno;
 
+    bool enabled;
+
     Connection() = default;
     Connection( int n0, int n1, float w, int inno = 0 )
-     : n0(n0), n1(n1), w(w), inno(inno)
+     : n0(n0), n1(n1), w(w), inno(inno), enabled(true)
     {}
 };
 
@@ -33,6 +35,8 @@ struct Graph
     int getNbNodes() const;
     int getMaxNode() const;
     std::vector<int> getLayers() const;
+    SpMat<bool> getAdjacencyMatrix() const;
+    std::vector< std::pair<int,int> > getNbConnectionsPerNode() const;
     bool isInput( int n ) const;
     bool isOutput( int n ) const;
 };
