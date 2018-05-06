@@ -63,11 +63,12 @@ std::vector<int> Graph::getLayers() const
 
     bool changed = true;
     int lastLayer = 0;
+    std::list<Connection> c_list( connections.begin(), connections.end() );
     while( changed )
     {
         changed = false;
 
-        for ( const Connection& c : connections )
+        for ( auto it = c_list.begin() ; it != c_list.end() ; )
         {
             if ( c.enabled && layers[c.n0] != -1 )
             {
@@ -79,6 +80,12 @@ std::vector<int> Graph::getLayers() const
                     changed = true;
                     lastLayer = std::max( lastLayer, n1layer );
                 }
+
+                it = c_list.erase(it);
+            }
+            else
+            {
+                ++it;
             }
         }
     }

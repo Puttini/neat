@@ -27,8 +27,14 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
 
 bool GenAlgo::mutate_all()
 {
+    bool mutated = false;
     for ( Graph& g : genomes )
-        mutate(g);
+    {
+        if ( mutate(g) )
+            mutated = true;
+    }
+
+    return mutated;
 }
 
 bool GenAlgo::mutate( Graph& g )
@@ -70,6 +76,8 @@ bool GenAlgo::mutate( Graph& g )
         if ( dist(rng) < pChangeWeight )
             changeWeight(c);
     }
+
+    return mutated;
 }
 
 void GenAlgo::setSeed( int seed )
