@@ -85,4 +85,15 @@ PYBIND11_MODULE( neat, m )
     genalgo.def( "changeWeight", &GenAlgo::changeWeight );
     genalgo.def( "initWeight", &GenAlgo::changeWeight );
     genalgo.def( "crossOver", &GenAlgo::crossOver );
+    genalgo.def( "getNbMaxGenes", &GenAlgo::getNbMaxGenes );
+    genalgo.def( "computeCompDist",
+            []( const GenAlgo& ga, const Graph& g0, const Graph& g1, int* nbMaxGenes )
+            {
+                if ( nbMaxGenes )
+                    return ga.computeCompDist(g0,g1,*nbMaxGenes);
+                return ga.computeCompDist(g0,g1);
+            },
+            py::arg( "g0" ),
+            py::arg( "g1" ),
+            py::arg( "nbMaxGenes" ).none(true) = nullptr );
 }

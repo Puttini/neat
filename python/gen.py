@@ -87,13 +87,6 @@ def onlyCrossOver():
     plt.subplot(nbGen+1,2,2)
     drawGraph(g1)
 
-    print( "Initial g0" )
-    for c in g0.connections:
-        print( " %2d: %2d ->%2d" % (c.inno, c.n0, c.n1 ) )
-    print( "Initial g1" )
-    for c in g1.connections:
-        print( " %2d: %2d ->%2d" % (c.inno, c.n0, c.n1 ) )
-
     for gen in range(nbGen):
         new_gen = [
                 ga.crossOver(
@@ -108,16 +101,6 @@ def onlyCrossOver():
         drawGraph(g0)
         plt.subplot(nbGen+1,2,2*(gen+1)+2)
         drawGraph(g1)
-
-        print()
-        print( " ----- " )
-        print()
-        print( "Generation %d g0" % gen )
-        for c in g0.connections:
-            print( " %2d: %2d ->%2d" % (c.inno, c.n0, c.n1 ) )
-        print( "Generation %d g1" % gen )
-        for c in g1.connections:
-            print( " %2d: %2d ->%2d" % (c.inno, c.n0, c.n1 ) )
 
 if __name__ == "__main__":
     #plt.figure("Only adding nodes")

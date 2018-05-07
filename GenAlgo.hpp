@@ -49,6 +49,12 @@ struct GenAlgo
     Graph crossOver(
             const Graph& g0, const Graph& g1,
             float fitness0, float fitness1 );
+    int getNbMaxGenes() const;
+    float computeCompDist(
+            const Graph& g0, const Graph& g1 ) const;
+    float computeCompDist(
+            const Graph& g0, const Graph& g1,
+            int nbMaxGenes ) const;
 };
 
 #endif // GEN_ALGO_HPP

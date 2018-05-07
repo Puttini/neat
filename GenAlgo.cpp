@@ -294,3 +294,56 @@ Graph GenAlgo::crossOver(
 
     return offspring;
 }
+
+float GenAlgo::computeCompDist(
+        const Graph& g0,
+        const Graph& g1 ) const
+{
+    return computeCompDist(g0,g1,getNbMaxGenes());
+}
+
+float GenAlgo::computeCompDist(
+        const Graph& g0,
+        const Graph& g1,
+        int nbMaxGenes ) const
+{
+    int idx0 = 0;
+    int idx1 = 0;
+    float dist = 0;
+    float coeff12 = static_cast<float>(c12) / static_cast<float>(nbMaxGenes);
+    while( idx0 < g0.connections.size() || idx1 < g1.connections.size() )
+    {
+        const Connection& c0 = g0.connections[idx0];
+        const Connection& c1 = g1.connections[idx1];
+
+        if ( c0.inno == c1.inno )
+        {
+            float w0 = c0.enabled ? c0.w : 0;
+            float w1 = c1.enabled ? c1.w : 0;
+            dist += coeff12 * std::abs(w0-w1);
+
+            idx0++;
+            idx1++;
+        }
+        else if ( c0.inno < c1.inno )
+        {
+            dist += coeff12;
+            idx0++;
+        }
+        else
+        {
+            dist += coeff12;
+            idx1++;
+        }
+    }
+
+    return dist;
+}
+
+int GenAlgo::getNbMaxGenes() const
+{
+    int nb = 0;
+    for ( const Graph& g : genomes )
+        nb = std::max<int>( nb, g.connections.size() );
+    return nb;
+}
