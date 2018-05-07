@@ -6,6 +6,8 @@
 
 struct GenAlgo
 {
+    int nbInputs;
+    int nbOutputs;
     int population;
 
     // Mutation probabilities
@@ -14,8 +16,10 @@ struct GenAlgo
     float pChangeWeight;
     float pDisableConnection;
     float pEnableConnection;
+    float pTakeNewGene; // Experimental. Should always be 1.
 
     int nbMaxTry;
+    float initStdDev;
     float defStdDev;
     float relStdDev;
     float c12, c3;
@@ -41,6 +45,10 @@ struct GenAlgo
     bool addNode( Graph& g );
     bool addConnection( Graph& g );
     bool changeWeight( Connection& c );
+    bool initWeight( Connection& c );
+    Graph crossOver(
+            const Graph& g0, const Graph& g1,
+            float fitness0, float fitness1 );
 };
 
 #endif // GEN_ALGO_HPP

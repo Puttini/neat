@@ -113,12 +113,13 @@ bool Graph::isOutput( int n ) const
     return n >= nbInputs && n < nbInputs + nbOutputs;
 }
 
-SpMat<bool> Graph::getAdjacencyMatrix() const
+SpMat<const Connection*> Graph::getAdjacencyMatrix() const
 {
     int sz = getMaxNode() + 1;
-    SpMat<bool> adj( sz, sz );
+    SpMat<const Connection*> adj( sz, sz );
     for ( const Connection& c : connections )
-        adj.coeffRef(c.n0,c.n1) = true;
+        adj.insert(c.n0,c.n1) = &c;
+    adj.makeCompressed();
     return adj;
 }
 

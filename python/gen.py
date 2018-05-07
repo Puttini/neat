@@ -68,14 +68,68 @@ def onlyChangeWeights():
         if c.enabled:
             print( "%d -> %d : %f" % (c.n0, c.n1, c.w) )
 
+def onlyCrossOver():
+    nbGen = 3
+
+    ga = GenAlgo(2,2,2)
+    ga.setSeed(0)
+    g0, g1 = ga.genomes
+    for _ in range(2):
+        ga.addNode(g0)
+        ga.addNode(g1)
+
+    for _ in range(2):
+        ga.addConnection(g0)
+        ga.addConnection(g1)
+
+    plt.subplot(nbGen+1,2,1)
+    drawGraph(g0)
+    plt.subplot(nbGen+1,2,2)
+    drawGraph(g1)
+
+    print( "Initial g0" )
+    for c in g0.connections:
+        print( " %2d: %2d ->%2d" % (c.inno, c.n0, c.n1 ) )
+    print( "Initial g1" )
+    for c in g1.connections:
+        print( " %2d: %2d ->%2d" % (c.inno, c.n0, c.n1 ) )
+
+    for gen in range(nbGen):
+        new_gen = [
+                ga.crossOver(
+                    ga.genomes[0], ga.genomes[1],
+                    1, 1 )
+                for _ in range(2) ]
+        ga.genomes = new_gen
+
+        g0, g1 = ga.genomes
+
+        plt.subplot(nbGen+1,2,2*(gen+1)+1)
+        drawGraph(g0)
+        plt.subplot(nbGen+1,2,2*(gen+1)+2)
+        drawGraph(g1)
+
+        print()
+        print( " ----- " )
+        print()
+        print( "Generation %d g0" % gen )
+        for c in g0.connections:
+            print( " %2d: %2d ->%2d" % (c.inno, c.n0, c.n1 ) )
+        print( "Generation %d g1" % gen )
+        for c in g1.connections:
+            print( " %2d: %2d ->%2d" % (c.inno, c.n0, c.n1 ) )
+
 if __name__ == "__main__":
-    plt.figure("Only adding nodes")
-    onlyAddNode()
+    #plt.figure("Only adding nodes")
+    #onlyAddNode()
 
-    plt.figure("Only adding connections")
-    onlyAddConnection()
+    #plt.figure("Only adding connections")
+    #onlyAddConnection()
 
-    plt.figure("Only changing weights")
-    onlyChangeWeights()
+    #plt.figure("Only changing weights")
+    #onlyChangeWeights()
+
+    plt.figure("Only cross over")
+    onlyCrossOver()
 
     plt.show()

@@ -2,7 +2,9 @@
 #include <map>
 
 GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
- : population(population),
+ : nbInputs(nbInputs),
+   nbOutputs(nbOutputs),
+   population(population),
 
    // Default values
    pAddNode(0.03),
@@ -11,13 +13,17 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
    pDisableConnection(0.01),
    pEnableConnection(0.05),
 
+   // If this probability is < 1, a cross-over can have invalid nodes...
+   pTakeNewGene(1.0),
+
    nbMaxTry(20),
-   defStdDev(0.5),
+   initStdDev(0.6),
+   defStdDev(0.2),
    relStdDev(0.5),
    c12(1), c3(1),
    dThreshold(3)
 {
-    current_inno = 0;
+    current_inno = nbInputs*nbOutputs; // Initial connections of genomes
     current_generation = 0;
     current_node = nbInputs + nbOutputs;
 
@@ -25,6 +31,12 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
 
     for ( int p = 0 ; p < population ; ++p )
         genomes.emplace_back( nbInputs, nbOutputs );
+
+    for ( Graph& g : genomes )
+    {
+        for ( Connection& c : g.connections )
+            initWeight(c);
+    }
 }
 
 bool GenAlgo::mutate_all()
@@ -147,7 +159,7 @@ bool GenAlgo::addConnection( Graph& g )
     for ( int nbTry = 0 ; nbTry < nbMaxTry ; ++nbTry )
     {
         int cand_in = presentNodes[ in_dist(rng) ];
-        int cand_out = presentNodes[ in_dist(rng) ];
+        int cand_out = presentNodes[ out_dist(rng) ];
 
         // Test if the connection already exists in the graph
         bool exists = false;
@@ -171,7 +183,7 @@ bool GenAlgo::addConnection( Graph& g )
         {
             g.connections.emplace_back( cand_in, cand_out, 0, current_inno );
             current_inno++;
-            changeWeight( g.connections[ g.connections.size()-1 ] );
+            initWeight( g.connections[ g.connections.size()-1 ] );
             return true;
         }
     }
@@ -185,4 +197,100 @@ bool GenAlgo::changeWeight( Connection& c )
             defStdDev + relStdDev*std::abs(c.w) );
     c.w = dist(rng);
     return true;
+}
+
+bool GenAlgo::initWeight( Connection& c )
+{
+    std::normal_distribution<float> dist( 0, initStdDev );
+    c.w = dist(rng);
+    return true;
+}
+
+Graph GenAlgo::crossOver(
+        const Graph& g0, const Graph& g1,
+        float fitness0, float fitness1 )
+{
+    Graph offspring( nbInputs, nbOutputs, false );
+
+    std::uniform_real_distribution<float> choice(0,fitness0+fitness1);
+    std::uniform_real_distribution<float> take_gene(0,1);
+
+    // Construct the final adjacency matrix
+    // The aim of that is to avoid several connections between the same points
+    // (which is different from having different innovation numbers)
+    int sz = std::max( g0.getMaxNode(), g1.getMaxNode() ) + 1;
+    SpMat<Connection*> adj(sz,sz);
+
+    int idx0 = 0;
+    int idx1 = 0;
+    while( idx0 < g0.connections.size() || idx1 < g1.connections.size() )
+    {
+        const Connection* c0 =
+            idx0 < g0.connections.size()
+            ? &g0.connections[idx0]
+            : nullptr;
+        const Connection* c1 =
+            idx1 < g1.connections.size()
+            ? &g1.connections[idx1]
+            : nullptr;
+
+        if ( c0 && c1 && c0->inno == c1->inno )
+        {
+            // Cross over of the same gene
+            // There can't be overlapping connection here
+            // as there is not for both children
+
+            if ( choice(rng) < fitness0 )
+                offspring.connections.push_back(*c0);
+            else
+                offspring.connections.push_back(*c1);
+
+            Connection& new_c = offspring.connections[
+                offspring.connections.size() -1 ];
+            adj.insert( new_c.n0, new_c.n1 ) = &new_c;
+
+            idx0++;
+            idx1++;
+        }
+        else if ( c0 && ( !c1 || ( /*c1 &&*/ c0->inno < c1->inno ) ) )
+        {
+            // Take connection c0
+            // but also test conflicts
+            if ( adj.coeff(c0->n0,c0->n1) )
+            {
+                if ( choice(rng) < fitness0 )
+                    *(adj.coeffRef(c0->n0,c0->n1)) = *c0;
+            }
+            else if ( take_gene(rng) < pTakeNewGene )
+            {
+                offspring.connections.push_back(*c0);
+                Connection& new_c = offspring.connections[
+                    offspring.connections.size() -1 ];
+                adj.insert( new_c.n0, new_c.n1 ) = &new_c;
+            }
+
+            idx0++;
+        }
+        else
+        {
+            // Take connection c1
+            // but also test conflicts
+            if ( adj.coeff(c1->n0,c1->n1) )
+            {
+                if ( choice(rng) < fitness0 )
+                    *(adj.coeffRef(c0->n0,c0->n1)) = *c0;
+            }
+            else if ( take_gene(rng) < pTakeNewGene )
+            {
+                offspring.connections.push_back(*c1);
+                Connection& new_c = offspring.connections[
+                    offspring.connections.size() -1 ];
+                adj.insert( new_c.n0, new_c.n1 ) = &new_c;
+            }
+
+            idx1++;
+        }
+    }
+
+    return offspring;
 }
