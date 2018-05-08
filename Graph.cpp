@@ -35,12 +35,12 @@ int Graph::getNbNodes() const
     return nodes.size();
 }
 
-int Graph::getMaxNode() const
+int Graph::getMaxNode( bool use_disabled ) const
 {
     int maxNode = 0;
     for ( const Connection& c : connections )
     {
-        if ( c.enabled )
+        if ( use_disabled || c.enabled )
         {
             maxNode = std::max( std::max(
                         maxNode,

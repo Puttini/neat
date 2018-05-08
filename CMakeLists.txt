@@ -12,3 +12,6 @@ set_target_properties( source PROPERTIES COMPILE_FLAGS -fPIC )
 
 pybind11_add_module( neat neat.cpp )
 target_link_libraries( neat PRIVATE source )
+
+add_executable( test test.cpp )
+target_link_libraries( test PRIVATE source )

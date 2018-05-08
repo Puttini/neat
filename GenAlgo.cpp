@@ -225,7 +225,7 @@ Graph GenAlgo::crossOver(
     // Construct the final adjacency matrix
     // The aim of that is to avoid several connections between the same points
     // (which is different from having different innovation numbers)
-    int sz = std::max( g0.getMaxNode(), g1.getMaxNode() ) + 1;
+    int sz = std::max( g0.getMaxNode(true), g1.getMaxNode(true) ) + 1;
     SpMat<Connection*> adj(sz,sz);
 
     int idx0 = 0;
@@ -285,7 +285,7 @@ Graph GenAlgo::crossOver(
             if ( adj.coeff(c1->n0,c1->n1) )
             {
                 if ( choice(rng) < fitness0 )
-                    *(adj.coeffRef(c0->n0,c0->n1)) = *c0;
+                    *(adj.coeffRef(c1->n0,c1->n1)) = *c1;
             }
             else if ( take_gene(rng) < pTakeNewGene )
             {
@@ -313,19 +313,25 @@ float GenAlgo::computeCompDist(
     float coeff12 = static_cast<float>(c12) / static_cast<float>(nbMaxGenes);
     while( idx0 < g0.connections.size() || idx1 < g1.connections.size() )
     {
-        const Connection& c0 = g0.connections[idx0];
-        const Connection& c1 = g1.connections[idx1];
+        const Connection* c0 =
+            idx0 < g0.connections.size()
+            ? &g0.connections[idx0]
+            : nullptr;
+        const Connection* c1 =
+            idx1 < g1.connections.size()
+            ? &g1.connections[idx1]
+            : nullptr;
 
-        if ( c0.inno == c1.inno )
+        if ( c0 && c1 && c0->inno == c1->inno )
         {
-            float w0 = c0.enabled ? c0.w : 0;
-            float w1 = c1.enabled ? c1.w : 0;
-            dist += coeff12 * std::abs(w0-w1);
+            float w0 = c0->enabled ? c0->w : 0;
+            float w1 = c1->enabled ? c1->w : 0;
+            dist += c3 * std::abs(w0-w1);
 
             idx0++;
             idx1++;
         }
-        else if ( c0.inno < c1.inno )
+        else if ( c0 && ( !c1 || ( /*c1 &&*/ c0->inno < c1->inno ) ) )
         {
             dist += coeff12;
             idx0++;

@@ -34,7 +34,7 @@ struct Graph
     Graph( int nbInputs, int nbOutputs, bool init_connect = true );
 
     int getNbNodes() const;
-    int getMaxNode() const;
+    int getMaxNode( bool use_disabled = true ) const;
     std::vector<int> getLayers() const;
     SpMat<const Connection*> getAdjacencyMatrix() const;
     std::vector< std::pair<int,int> > getNbConnectionsPerNode() const;
