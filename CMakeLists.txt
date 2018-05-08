@@ -7,7 +7,8 @@ include_directories( "eigen" )
 
 add_library( source STATIC
     Graph.cpp
-    GenAlgo.cpp )
+    GenAlgo.cpp
+    GraphEval.cpp )
 set_target_properties( source PROPERTIES COMPILE_FLAGS -fPIC )
 
 pybind11_add_module( neat neat.cpp )

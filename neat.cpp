@@ -7,6 +7,7 @@
 #include "types.hpp"
 #include "Graph.hpp"
 #include "GenAlgo.hpp"
+#include "GraphEval.hpp"
 
 namespace py = pybind11;
 
@@ -97,4 +98,18 @@ PYBIND11_MODULE( neat, m )
     genalgo.def( "initSpecies", &GenAlgo::initSpecies );
     genalgo.def( "actualizeSpecies", &GenAlgo::actualizeSpecies );
     genalgo.def( "nextGen", &GenAlgo::nextGen );
+
+    // --- GraphEval ---
+    py::class_<GraphEval> ge( m, "GraphEval" );
+    ge.def( py::init<const Graph&>() );
+    ge.def( "evaluate", &GraphEval::evaluate,
+            py::arg( "input" ),
+            py::arg( "nbIter" ) = 1 );
+    ge.def_readonly( "nbInputs", &GraphEval::nbInputs );
+    ge.def_readonly( "nbOutputs", &GraphEval::nbOutputs );
+    ge.def_readonly( "nbNodes", &GraphEval::nbNodes );
+    ge.def_readonly( "adj", &GraphEval::adj );
+    ge.def_readonly( "values", &GraphEval::values );
+    ge.def_readonly( "nodeMap", &GraphEval::nodeMap );
+    ge.def( "graph", []( const GraphEval& ge ){ return ge.graph; } );
 }
