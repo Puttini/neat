@@ -37,6 +37,8 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
         for ( Connection& c : g.connections )
             initWeight(c);
     }
+
+    initSpecies();
 }
 
 bool GenAlgo::mutate_all()
@@ -346,4 +348,122 @@ int GenAlgo::getNbMaxGenes() const
     for ( const Graph& g : genomes )
         nb = std::max<int>( nb, g.connections.size() );
     return nb;
+}
+
+void GenAlgo::initSpecies()
+{
+    speciesPerGenome.clear();
+    speciesRepresentants.clear();
+    popPerSpecies.clear();
+
+    speciesPerGenome.resize( genomes.size() );
+
+    int nbMaxGenes = getNbMaxGenes();
+    for ( int g = 0 ; g < genomes.size() ; ++g )
+    {
+        bool foundSpecies = false;
+        for ( int s = 0 ; s < speciesRepresentants.size() ; ++s )
+        {
+            if ( computeCompDist(
+                        genomes[g],
+                        genomes[ speciesRepresentants[s] ],
+                        nbMaxGenes ) < dThreshold )
+            {
+                foundSpecies = true;
+                speciesPerGenome[g] = s;
+                popPerSpecies[s]++;
+                break;
+            }
+        }
+        if ( !foundSpecies )
+        {
+            speciesPerGenome[g] = speciesRepresentants.size();
+            popPerSpecies.push_back(1);
+            speciesRepresentants.push_back(g);
+        }
+    }
+}
+
+void GenAlgo::actualizeSpecies()
+{
+    std::vector<int> newSpeciesPerGenome;
+    std::vector<int> newSpeciesRepresentants;
+    std::vector<int> newPopPerSpecies;
+    newSpeciesPerGenome.resize( genomes.size() );
+
+    std::map<int,int> speciesMap;
+
+    int nbMaxGenes = getNbMaxGenes();
+
+    // Only look for old species
+    for ( int g = 0 ; g < genomes.size() ; ++g )
+    {
+        bool foundSpecies = false;
+        for ( int s = 0 ; s < speciesRepresentants.size() ; ++s )
+        {
+            if ( computeCompDist(
+                        genomes[g],
+                        genomes[ speciesRepresentants[s] ],
+                        nbMaxGenes ) < dThreshold )
+            {
+                auto match = speciesMap.find(s);
+                if ( match == speciesMap.end() )
+                {
+                    // First genome matching this old species
+                    int newSpecies = newSpeciesRepresentants.size();
+                    newSpeciesPerGenome[g] = newSpecies;
+                    newSpeciesRepresentants.push_back(g);
+                    newPopPerSpecies.push_back(1);
+                    speciesMap[s] = newSpecies;
+                }
+                else
+                {
+                    // Old species already matched
+                    int species = match->second;
+                    newSpeciesPerGenome[g] = species;
+                    newPopPerSpecies[species]++;
+                }
+                foundSpecies = true;
+                break;
+            }
+        }
+        if ( !foundSpecies )
+        {
+            newSpeciesPerGenome[g] = -1;
+        }
+    }
+
+    // Then construct the new species for genomes that are not speciated yet
+    int nbOldSpecies = newSpeciesRepresentants.size();
+    for ( int g = 0 ; g < genomes.size() ; ++g )
+    {
+        if ( newSpeciesPerGenome[g] == -1 )
+        {
+            bool foundSpecies = false;
+            for ( int s = nbOldSpecies ; s < newSpeciesRepresentants.size() ; ++s )
+            {
+                if ( computeCompDist(
+                            genomes[g],
+                            genomes[ newSpeciesRepresentants[s] ],
+                            nbMaxGenes ) < dThreshold )
+                {
+                    foundSpecies = true;
+                    newSpeciesPerGenome[g] = s;
+                    newPopPerSpecies[s]++;
+                    break;
+                }
+            }
+            if ( !foundSpecies )
+            {
+                newSpeciesPerGenome[g] = newSpeciesRepresentants.size();
+                newPopPerSpecies.push_back(1);
+                newSpeciesRepresentants.push_back(g);
+            }
+        }
+    }
+
+    // Finally swap the vectors (faster than copy)
+    speciesPerGenome.swap( newSpeciesPerGenome );
+    speciesRepresentants.swap( newSpeciesRepresentants );
+    popPerSpecies.swap( newPopPerSpecies );
 }

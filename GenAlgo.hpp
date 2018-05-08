@@ -31,6 +31,10 @@ struct GenAlgo
 
     std::vector<Graph> genomes;
 
+    std::vector<int> speciesPerGenome;     // Index of species per genome
+    std::vector<int> speciesRepresentants; // Index of genome per species
+    std::vector<int> popPerSpecies;        // Nb of genomes per species
+
     std::default_random_engine rng;
 
 // ---------------------------------------------------------------------------
@@ -40,7 +44,7 @@ struct GenAlgo
 
     void setSeed( int seed );
 
-    bool mutate_all();
+    bool mutate_all(); // Warning: does not actualize the species
     bool mutate( Graph& g );
     bool addNode( Graph& g );
     bool addConnection( Graph& g );
@@ -55,6 +59,8 @@ struct GenAlgo
     float computeCompDist(
             const Graph& g0, const Graph& g1,
             int nbMaxGenes ) const;
+    void initSpecies();
+    void actualizeSpecies();
 };
 
 #endif // GEN_ALGO_HPP

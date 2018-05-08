@@ -76,6 +76,9 @@ PYBIND11_MODULE( neat, m )
     genalgo.def_readonly( "current_node", &GenAlgo::current_node );
     genalgo.def_readonly( "current_generation", &GenAlgo::current_generation );
     genalgo.def_readwrite( "genomes", &GenAlgo::genomes );
+    genalgo.def_readonly( "speciesPerGenome", &GenAlgo::speciesPerGenome );
+    genalgo.def_readonly( "speciesRepresentants", &GenAlgo::speciesRepresentants );
+    genalgo.def_readonly( "popPerSpecies", &GenAlgo::popPerSpecies );
 
     genalgo.def( "setSeed", &GenAlgo::setSeed );
     genalgo.def( "mutate_all", &GenAlgo::mutate_all );
@@ -96,4 +99,6 @@ PYBIND11_MODULE( neat, m )
             py::arg( "g0" ),
             py::arg( "g1" ),
             py::arg( "nbMaxGenes" ).none(true) = nullptr );
+    genalgo.def( "initSpecies", &GenAlgo::initSpecies );
+    genalgo.def( "actualizeSpecies", &GenAlgo::actualizeSpecies );
 }
