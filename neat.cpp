@@ -102,7 +102,7 @@ PYBIND11_MODULE( neat, m )
     // --- GraphEval ---
     py::class_<GraphEval> ge( m, "GraphEval" );
     ge.def( py::init<const Graph&>() );
-    ge.def( "evaluate", &GraphEval::evaluate,
+    ge.def( "eval", &GraphEval::eval,
             py::arg( "input" ),
             py::arg( "nbIter" ) = 1 );
     ge.def_readonly( "nbInputs", &GraphEval::nbInputs );

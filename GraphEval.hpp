@@ -8,7 +8,7 @@
 struct GraphEval
 {
     GraphEval( const Graph& g );
-    Vector<float> evaluate( const std::vector<float>& input, int nbIter = 1 );
+    Vector<float> eval( const std::vector<float>& input, int nbIter = 1 );
 
     const Graph& graph;
     int nbInputs;

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import neat
+import numpy as np
 
 def drawGraph( graph, use_pos=True, draw_dis=False ):
     # Compute position of nodes
@@ -57,6 +58,7 @@ def drawGraph( graph, use_pos=True, draw_dis=False ):
             nx.draw( g, with_labels=True, edge_color=colors, width=widths )
     except Exception:
         import ipdb; ipdb.set_trace()
+        nx.draw( g, with_labels=True, edge_color=colors, width=widths )
     return plt
 
 if __name__ == "__main__":

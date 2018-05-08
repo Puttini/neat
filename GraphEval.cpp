@@ -56,7 +56,7 @@ GraphEval::GraphEval( const Graph& g )
     values.setConstant( defaultValue );
 }
 
-Vector<float> GraphEval::evaluate( const std::vector<float>& input, int nbIter )
+Vector<float> GraphEval::eval( const std::vector<float>& input, int nbIter )
 {
     Eigen::Map< const Vector<float> > v_input( input.data(), nbInputs );
     values.head(nbInputs) = v_input;
