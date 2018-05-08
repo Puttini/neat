@@ -3,6 +3,7 @@
 
 #include "Graph.hpp"
 #include <random>
+#include <map>
 
 struct GenAlgo
 {
@@ -18,12 +19,23 @@ struct GenAlgo
     float pEnableConnection;
     float pTakeNewGene; // Experimental. Should always be 1.
 
+    // During the computation of the next generation,
+    // we keep nbSurvivors genomes, and compute (population-nbSurvivors)
+    // offsprings among parents
+    // We mutate all new genomes (survivors and offsprings)
+    int nbSurvivors;
+    int nbParents;
+
     int nbMaxTry;
-    float initStdDev;
-    float defStdDev;
-    float relStdDev;
-    float c12, c3;
-    float dThreshold;
+
+    // For choosing/changing weights
+    float initStdDev; // Initialization around zero
+    float defStdDev;  // During mutation :
+    float relStdDev;  // w = normal( w, defStdDev + w*relStdDev )
+
+    // For computing compatibility distance
+    float c12, c3;    // We don't make distinction
+    float dThreshold; // between excess and disjoint genes
 
     int current_inno;
     int current_node; // Next node to be added to the graph
@@ -44,23 +56,30 @@ struct GenAlgo
 
     void setSeed( int seed );
 
-    bool mutate_all(); // Warning: does not actualize the species
+    bool mutate_all( std::vector<Graph>& someGenomes );
     bool mutate( Graph& g );
     bool addNode( Graph& g );
     bool addConnection( Graph& g );
     bool changeWeight( Connection& c );
     bool initWeight( Connection& c );
+
     Graph crossOver(
             const Graph& g0, const Graph& g1,
             float fitness0, float fitness1 );
+
     int getNbMaxGenes() const;
-    float computeCompDist(
-            const Graph& g0, const Graph& g1 ) const;
     float computeCompDist(
             const Graph& g0, const Graph& g1,
             int nbMaxGenes ) const;
+
     void initSpecies();
-    void actualizeSpecies();
+
+    // Returns the map of old species VS new species, so you can trace them
+    std::map<int,int> actualizeSpecies( const std::vector<Graph>& newGenomes );
+
+    // Constructs the next generation, according to the vector of
+    // fitnesses per genome
+    std::map<int,int> nextGen( const std::vector<float>& fitnesses );
 };
 
 #endif // GEN_ALGO_HPP

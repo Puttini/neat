@@ -68,6 +68,9 @@ PYBIND11_MODULE( neat, m )
     genalgo.def_readwrite( "pDisableConnection", &GenAlgo::pDisableConnection );
     genalgo.def_readwrite( "pEnableConnection", &GenAlgo::pEnableConnection );
     genalgo.def_readwrite( "pTakeNewGene", &GenAlgo::pTakeNewGene );
+    genalgo.def_readwrite( "nbSurvivors", &GenAlgo::nbSurvivors );
+    genalgo.def_readwrite( "nbParents", &GenAlgo::nbParents );
+    genalgo.def_readwrite( "nbMaxTry", &GenAlgo::nbMaxTry );
     genalgo.def_readwrite( "defStdDev", &GenAlgo::defStdDev );
     genalgo.def_readwrite( "relStdDev", &GenAlgo::relStdDev );
     genalgo.def_readwrite( "c12", &GenAlgo::c12 );
@@ -90,16 +93,8 @@ PYBIND11_MODULE( neat, m )
     genalgo.def( "initWeight", &GenAlgo::changeWeight );
     genalgo.def( "crossOver", &GenAlgo::crossOver );
     genalgo.def( "getNbMaxGenes", &GenAlgo::getNbMaxGenes );
-    genalgo.def( "computeCompDist",
-            []( const GenAlgo& ga, const Graph& g0, const Graph& g1, int* nbMaxGenes )
-            {
-                if ( nbMaxGenes )
-                    return ga.computeCompDist(g0,g1,*nbMaxGenes);
-                return ga.computeCompDist(g0,g1);
-            },
-            py::arg( "g0" ),
-            py::arg( "g1" ),
-            py::arg( "nbMaxGenes" ).none(true) = nullptr );
+    genalgo.def( "computeCompDist", &GenAlgo::computeCompDist );
     genalgo.def( "initSpecies", &GenAlgo::initSpecies );
     genalgo.def( "actualizeSpecies", &GenAlgo::actualizeSpecies );
+    genalgo.def( "nextGen", &GenAlgo::nextGen );
 }

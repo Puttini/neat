@@ -1,5 +1,5 @@
 #include "GenAlgo.hpp"
-#include <map>
+#include <algorithm>
 
 GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
  : nbInputs(nbInputs),
@@ -26,6 +26,8 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
     current_inno = nbInputs*nbOutputs; // Initial connections of genomes
     current_generation = 0;
     current_node = nbInputs + nbOutputs;
+    nbSurvivors = population/5;
+    nbParents = population/3;
 
     genomes.reserve(population);
 
@@ -41,10 +43,10 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
     initSpecies();
 }
 
-bool GenAlgo::mutate_all()
+bool GenAlgo::mutate_all( std::vector<Graph>& someGenomes )
 {
     bool mutated = false;
-    for ( Graph& g : genomes )
+    for ( Graph& g : someGenomes )
     {
         if ( mutate(g) )
             mutated = true;
@@ -302,13 +304,6 @@ Graph GenAlgo::crossOver(
 
 float GenAlgo::computeCompDist(
         const Graph& g0,
-        const Graph& g1 ) const
-{
-    return computeCompDist(g0,g1,getNbMaxGenes());
-}
-
-float GenAlgo::computeCompDist(
-        const Graph& g0,
         const Graph& g1,
         int nbMaxGenes ) const
 {
@@ -387,7 +382,7 @@ void GenAlgo::initSpecies()
     }
 }
 
-void GenAlgo::actualizeSpecies()
+std::map<int,int> GenAlgo::actualizeSpecies( const std::vector<Graph>& newGenomes )
 {
     std::vector<int> newSpeciesPerGenome;
     std::vector<int> newSpeciesRepresentants;
@@ -399,13 +394,13 @@ void GenAlgo::actualizeSpecies()
     int nbMaxGenes = getNbMaxGenes();
 
     // Only look for old species
-    for ( int g = 0 ; g < genomes.size() ; ++g )
+    for ( int g = 0 ; g < newGenomes.size() ; ++g )
     {
         bool foundSpecies = false;
         for ( int s = 0 ; s < speciesRepresentants.size() ; ++s )
         {
             if ( computeCompDist(
-                        genomes[g],
+                        newGenomes[g],
                         genomes[ speciesRepresentants[s] ],
                         nbMaxGenes ) < dThreshold )
             {
@@ -438,7 +433,7 @@ void GenAlgo::actualizeSpecies()
 
     // Then construct the new species for genomes that are not speciated yet
     int nbOldSpecies = newSpeciesRepresentants.size();
-    for ( int g = 0 ; g < genomes.size() ; ++g )
+    for ( int g = 0 ; g < newGenomes.size() ; ++g )
     {
         if ( newSpeciesPerGenome[g] == -1 )
         {
@@ -446,8 +441,8 @@ void GenAlgo::actualizeSpecies()
             for ( int s = nbOldSpecies ; s < newSpeciesRepresentants.size() ; ++s )
             {
                 if ( computeCompDist(
-                            genomes[g],
-                            genomes[ newSpeciesRepresentants[s] ],
+                            newGenomes[g],
+                            newGenomes[ newSpeciesRepresentants[s] ],
                             nbMaxGenes ) < dThreshold )
                 {
                     foundSpecies = true;
@@ -469,4 +464,60 @@ void GenAlgo::actualizeSpecies()
     speciesPerGenome.swap( newSpeciesPerGenome );
     speciesRepresentants.swap( newSpeciesRepresentants );
     popPerSpecies.swap( newPopPerSpecies );
+
+    return speciesMap;
+}
+
+std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
+{
+    // Compute new fitnesses depending to the population of each species
+    std::vector< std::pair<int,float> > new_fitnesses( genomes.size() );
+    for ( int g = 0 ; g < genomes.size() ; ++g )
+    {
+        new_fitnesses[g].first = g;
+        new_fitnesses[g].second =
+            fitnesses[g] / popPerSpecies[ speciesPerGenome[g] ];
+    }
+
+    // Sort the new fitnesses
+    std::sort( new_fitnesses.begin(), new_fitnesses.end(),
+            []( const std::pair<int,float>& p0,
+                const std::pair<int,float>& p1 )
+            { return p0.second < p1.second; } );
+
+    std::vector<Graph> newGenomes;
+    newGenomes.reserve( genomes.size() );
+
+    // --- Get survivors ---
+    std::uniform_int_distribution<int> parent(0,nbParents-1);
+    int g = 0;
+    for ( ; g < nbSurvivors ; ++g )
+        newGenomes.push_back( genomes[ new_fitnesses[g].first ] );
+
+    // --- Proceed to cross over ---
+    // For now, we don't mind about species
+    // All the genomes can be crossed over...
+    for ( ; g < population ; ++g )
+    {
+        // Chose parents
+        int nbTry = 0;
+        int p0, p1;
+        do
+        {
+            p0 = parent(rng);
+            p1 = parent(rng);
+            nbTry++;
+        } while ( nbTry < nbMaxTry && p0 == p1 ) ;
+
+        newGenomes.push_back( crossOver(
+                    genomes[ new_fitnesses[p0].first ],
+                    genomes[ new_fitnesses[p1].first ],
+                    new_fitnesses[p0].second,
+                    new_fitnesses[p1].second ) );
+    }
+
+    mutate_all( newGenomes );
+    std::map<int,int> speciesMap = actualizeSpecies( newGenomes );
+    genomes.swap( newGenomes );
+    return speciesMap;
 }
