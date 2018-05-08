@@ -102,6 +102,30 @@ def onlyCrossOver():
         plt.subplot(nbGen+1,2,2*(gen+1)+2)
         drawGraph(g1)
 
+def basicGenerations():
+    nbGen = 3
+
+    ga = GenAlgo(2,1,5)
+    ga.setSeed(0)
+    ga.pAddNode = 0.4
+    ga.dThreshold = 2.
+    ga.c3 = 2
+
+    for i, g in enumerate(ga.genomes):
+        plt.subplot(nbGen+1,5,i+1)
+        drawGraph(g)
+
+    print( "Starting genetic algorithm" )
+    print( "Generation %d: %d species" % (0, len(ga.popPerSpecies)) )
+    for gen in range(nbGen):
+        ga.nextGen( [ len(g.connections) for g in ga.genomes ] )
+
+        for i, g in enumerate(ga.genomes):
+            plt.subplot(nbGen+1,5,(gen+1)*5+i+1)
+            drawGraph(g)
+
+        print( "Generation %d: %d species" % (gen+1, len(ga.popPerSpecies)) )
+
 if __name__ == "__main__":
     #plt.figure("Only adding nodes")
     #onlyAddNode()
@@ -112,7 +136,10 @@ if __name__ == "__main__":
     #plt.figure("Only changing weights")
     #onlyChangeWeights()
 
-    plt.figure("Only cross over")
-    onlyCrossOver()
+    #plt.figure("Only cross over")
+    #onlyCrossOver()
+
+    plt.figure( "Simple generations" )
+    basicGenerations()
 
     plt.show()

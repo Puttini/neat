@@ -57,7 +57,7 @@ std::vector<int> Graph::getLayers() const
     // We are working on a treillis, where the minima are the input layer,
     // and the maxima are the output layers.
     int maxNode = getMaxNode();
-    std::vector<int> layers( getMaxNode() + 1, -1 );
+    std::vector<int> layers( getMaxNode(true) + 1, -1 );
     for ( int i = 0 ; i < nbInputs ; ++i )
         layers[i] = 0;
 
@@ -71,7 +71,7 @@ std::vector<int> Graph::getLayers() const
         for ( auto it = c_list.begin() ; it != c_list.end() ; )
         {
             const Connection& c = *it;
-            if ( c.enabled && layers[c.n0] != -1 && !isOutput(c.n1) )
+            if ( /*c.enabled &&*/ layers[c.n0] != -1 && !isOutput(c.n1) )
             {
                 int n1layer = layers[c.n0] + 1;
                 if ( n1layer > layers[c.n1] )

@@ -485,11 +485,11 @@ std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
             fitnesses[g] / popPerSpecies[ speciesPerGenome[g] ];
     }
 
-    // Sort the new fitnesses
+    // Sort the new fitnesses in descending order
     std::sort( new_fitnesses.begin(), new_fitnesses.end(),
             []( const std::pair<int,float>& p0,
                 const std::pair<int,float>& p1 )
-            { return p0.second < p1.second; } );
+            { return p0.second > p1.second; } );
 
     std::vector<Graph> newGenomes;
     newGenomes.reserve( genomes.size() );
