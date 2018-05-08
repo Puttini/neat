@@ -43,6 +43,7 @@ PYBIND11_MODULE( neat, m )
             py::arg( "nbInputs" ),
             py::arg( "nbOutputs" ),
             py::arg( "init_connect" ) = true );
+    graph.def( py::init<const Graph&>() );
     graph.def_readwrite( "connections", &Graph::connections );
     graph.def_readwrite( "nbInputs", &Graph::nbInputs );
     graph.def_readwrite( "nbOutputs", &Graph::nbOutputs );

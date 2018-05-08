@@ -90,7 +90,10 @@ bool GenAlgo::mutate( Graph& g )
         }
 
         if ( dist(rng) < pChangeWeight )
+        {
             changeWeight(c);
+            mutated = true;
+        }
     }
 
     return mutated;

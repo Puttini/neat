@@ -30,6 +30,7 @@ struct Graph
 
 
     Graph() = default;
+    Graph( const Graph& ) = default;
     Graph( int nbInputs, int nbOutputs, bool init_connect = true );
 
     int getNbNodes() const;
