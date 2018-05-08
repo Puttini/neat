@@ -43,6 +43,7 @@ PYBIND11_MODULE( neat, m )
             py::arg( "nbInputs" ),
             py::arg( "nbOutputs" ),
             py::arg( "init_connect" ) = true );
+    graph.def( py::init<const Graph&>() );
     graph.def_readwrite( "connections", &Graph::connections );
     graph.def_readwrite( "nbInputs", &Graph::nbInputs );
     graph.def_readwrite( "nbOutputs", &Graph::nbOutputs );
@@ -66,6 +67,10 @@ PYBIND11_MODULE( neat, m )
     genalgo.def_readwrite( "pChangeWeight", &GenAlgo::pChangeWeight );
     genalgo.def_readwrite( "pDisableConnection", &GenAlgo::pDisableConnection );
     genalgo.def_readwrite( "pEnableConnection", &GenAlgo::pEnableConnection );
+    genalgo.def_readwrite( "pTakeNewGene", &GenAlgo::pTakeNewGene );
+    genalgo.def_readwrite( "nbSurvivors", &GenAlgo::nbSurvivors );
+    genalgo.def_readwrite( "nbParents", &GenAlgo::nbParents );
+    genalgo.def_readwrite( "nbMaxTry", &GenAlgo::nbMaxTry );
     genalgo.def_readwrite( "defStdDev", &GenAlgo::defStdDev );
     genalgo.def_readwrite( "relStdDev", &GenAlgo::relStdDev );
     genalgo.def_readwrite( "c12", &GenAlgo::c12 );
@@ -75,6 +80,9 @@ PYBIND11_MODULE( neat, m )
     genalgo.def_readonly( "current_node", &GenAlgo::current_node );
     genalgo.def_readonly( "current_generation", &GenAlgo::current_generation );
     genalgo.def_readwrite( "genomes", &GenAlgo::genomes );
+    genalgo.def_readonly( "speciesPerGenome", &GenAlgo::speciesPerGenome );
+    genalgo.def_readonly( "speciesRepresentants", &GenAlgo::speciesRepresentants );
+    genalgo.def_readonly( "popPerSpecies", &GenAlgo::popPerSpecies );
 
     genalgo.def( "setSeed", &GenAlgo::setSeed );
     genalgo.def( "mutate_all", &GenAlgo::mutate_all );
@@ -82,4 +90,11 @@ PYBIND11_MODULE( neat, m )
     genalgo.def( "addNode", &GenAlgo::addNode );
     genalgo.def( "addConnection", &GenAlgo::addConnection );
     genalgo.def( "changeWeight", &GenAlgo::changeWeight );
+    genalgo.def( "initWeight", &GenAlgo::changeWeight );
+    genalgo.def( "crossOver", &GenAlgo::crossOver );
+    genalgo.def( "getNbMaxGenes", &GenAlgo::getNbMaxGenes );
+    genalgo.def( "computeCompDist", &GenAlgo::computeCompDist );
+    genalgo.def( "initSpecies", &GenAlgo::initSpecies );
+    genalgo.def( "actualizeSpecies", &GenAlgo::actualizeSpecies );
+    genalgo.def( "nextGen", &GenAlgo::nextGen );
 }

@@ -30,12 +30,13 @@ struct Graph
 
 
     Graph() = default;
+    Graph( const Graph& ) = default;
     Graph( int nbInputs, int nbOutputs, bool init_connect = true );
 
     int getNbNodes() const;
-    int getMaxNode() const;
+    int getMaxNode( bool use_disabled = true ) const;
     std::vector<int> getLayers() const;
-    SpMat<bool> getAdjacencyMatrix() const;
+    SpMat<const Connection*> getAdjacencyMatrix() const;
     std::vector< std::pair<int,int> > getNbConnectionsPerNode() const;
     bool isInput( int n ) const;
     bool isOutput( int n ) const;

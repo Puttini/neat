@@ -35,12 +35,12 @@ int Graph::getNbNodes() const
     return nodes.size();
 }
 
-int Graph::getMaxNode() const
+int Graph::getMaxNode( bool use_disabled ) const
 {
     int maxNode = 0;
     for ( const Connection& c : connections )
     {
-        if ( c.enabled )
+        if ( use_disabled || c.enabled )
         {
             maxNode = std::max( std::max(
                         maxNode,
@@ -57,7 +57,7 @@ std::vector<int> Graph::getLayers() const
     // We are working on a treillis, where the minima are the input layer,
     // and the maxima are the output layers.
     int maxNode = getMaxNode();
-    std::vector<int> layers( getMaxNode() + 1, -1 );
+    std::vector<int> layers( getMaxNode(true) + 1, -1 );
     for ( int i = 0 ; i < nbInputs ; ++i )
         layers[i] = 0;
 
@@ -71,7 +71,7 @@ std::vector<int> Graph::getLayers() const
         for ( auto it = c_list.begin() ; it != c_list.end() ; )
         {
             const Connection& c = *it;
-            if ( c.enabled && layers[c.n0] != -1 && !isOutput(c.n1) )
+            if ( /*c.enabled &&*/ layers[c.n0] != -1 && !isOutput(c.n1) )
             {
                 int n1layer = layers[c.n0] + 1;
                 if ( n1layer > layers[c.n1] )
@@ -113,12 +113,13 @@ bool Graph::isOutput( int n ) const
     return n >= nbInputs && n < nbInputs + nbOutputs;
 }
 
-SpMat<bool> Graph::getAdjacencyMatrix() const
+SpMat<const Connection*> Graph::getAdjacencyMatrix() const
 {
     int sz = getMaxNode() + 1;
-    SpMat<bool> adj( sz, sz );
+    SpMat<const Connection*> adj( sz, sz );
     for ( const Connection& c : connections )
-        adj.coeffRef(c.n0,c.n1) = true;
+        adj.insert(c.n0,c.n1) = &c;
+    adj.makeCompressed();
     return adj;
 }
 

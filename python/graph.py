@@ -38,7 +38,7 @@ def drawGraph( graph, use_pos=True, draw_dis=False ):
         else:
             c = (0.,0.,1.)
             w = connection.w
-        w = min( max( 0.5*w, 0.3 ), 2 )
+        w = min( max( w, 0.6 ), 4 )
 
         g.add_edge(
                 connection.n0,
@@ -48,7 +48,7 @@ def drawGraph( graph, use_pos=True, draw_dis=False ):
 
     edges = g.edges()
     colors = [ g[u][v][0]['color'] for u,v in edges ]
-    widths = [ 2*g[u][v][0]['weight'] for u,v in edges ]
+    widths = [ g[u][v][0]['weight'] for u,v in edges ]
 
     try:
         if use_pos:
