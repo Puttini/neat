@@ -218,6 +218,7 @@ Graph GenAlgo::crossOver(
         float fitness0, float fitness1 )
 {
     Graph offspring( nbInputs, nbOutputs, false );
+    offspring.connections.reserve( g0.connections.size() + g1.connections.size() );
 
     std::uniform_real_distribution<float> choice(0,fitness0+fitness1);
     std::uniform_real_distribution<float> take_gene(0,1);
@@ -246,7 +247,6 @@ Graph GenAlgo::crossOver(
             // Cross over of the same gene
             // There can't be overlapping connection here
             // as there is not for both children
-
             if ( choice(rng) < fitness0 )
                 offspring.connections.push_back(*c0);
             else
@@ -284,7 +284,7 @@ Graph GenAlgo::crossOver(
             // but also test conflicts
             if ( adj.coeff(c1->n0,c1->n1) )
             {
-                if ( choice(rng) < fitness0 )
+                if ( choice(rng) < fitness1 )
                     *(adj.coeffRef(c1->n0,c1->n1)) = *c1;
             }
             else if ( take_gene(rng) < pTakeNewGene )
@@ -525,5 +525,6 @@ std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
     mutate_all( newGenomes );
     std::map<int,int> speciesMap = actualizeSpecies( newGenomes );
     genomes.swap( newGenomes );
+    current_generation++;
     return speciesMap;
 }
