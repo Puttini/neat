@@ -127,17 +127,17 @@ def basicGenerations():
         print( "Generation %d: %d species" % (gen+1, len(ga.popPerSpecies)) )
 
 if __name__ == "__main__":
-    #plt.figure("Only adding nodes")
-    #onlyAddNode()
+    plt.figure("Only adding nodes")
+    onlyAddNode()
 
-    #plt.figure("Only adding connections")
-    #onlyAddConnection()
+    plt.figure("Only adding connections")
+    onlyAddConnection()
 
-    #plt.figure("Only changing weights")
-    #onlyChangeWeights()
+    plt.figure("Only changing weights")
+    onlyChangeWeights()
 
-    #plt.figure("Only cross over")
-    #onlyCrossOver()
+    plt.figure("Only cross over")
+    onlyCrossOver()
 
     plt.figure( "Simple generations" )
     basicGenerations()

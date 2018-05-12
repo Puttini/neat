@@ -48,8 +48,12 @@ PYBIND11_MODULE( neat, m )
     graph.def_readwrite( "connections", &Graph::connections );
     graph.def_readwrite( "nbInputs", &Graph::nbInputs );
     graph.def_readwrite( "nbOutputs", &Graph::nbOutputs );
-    graph.def( "getNbNodes", &Graph::getNbNodes );
-    graph.def( "getLayers", &Graph::getLayers );
+    graph.def( "getNbNodes", &Graph::getNbNodes,
+               py::arg( "use_disabled" ) = true );
+    graph.def( "getLayers", &Graph::getLayers,
+               py::arg( "use_disabled" ) = true );
+    graph.def( "getMaxNode", &Graph::getMaxNode,
+               py::arg( "use_disabled" ) = true );
     graph.def( "getAdjacencyMatrix", &Graph::getAdjacencyMatrix );
     graph.def( "getNbConnectionsPerNode", &Graph::getNbConnectionsPerNode );
     graph.def( "isInput", &Graph::isInput );

@@ -20,7 +20,7 @@ Graph::Graph( int nbInputs, int nbOutputs, bool init_connect )
     }
 }
 
-int Graph::getNbNodes() const
+int Graph::getNbNodes( bool use_disabled ) const
 {
     std::set<int> nodes;
     for ( const Connection& c : connections )
@@ -52,15 +52,16 @@ int Graph::getMaxNode( bool use_disabled ) const
     return maxNode;
 }
 
-std::vector<int> Graph::getLayers() const
+std::vector<int> Graph::getLayers( bool use_disabled ) const
 {
     // We are working on a treillis, where the minima are the input layer,
     // and the maxima are the output layers.
-    int maxNode = getMaxNode();
-    std::vector<int> layers( getMaxNode(true) + 1, -1 );
+    int sz = getMaxNode(use_disabled)+1;
+    std::vector<int> layers( sz, -1 );
     for ( int i = 0 ; i < nbInputs ; ++i )
         layers[i] = 0;
 
+    // Compute layers forward
     bool changed = true;
     int lastLayer = 0;
     std::list<Connection> c_list( connections.begin(), connections.end() );
@@ -71,7 +72,7 @@ std::vector<int> Graph::getLayers() const
         for ( auto it = c_list.begin() ; it != c_list.end() ; )
         {
             const Connection& c = *it;
-            if ( /*c.enabled &&*/ layers[c.n0] != -1 && !isOutput(c.n1) )
+            if ( (use_disabled||c.enabled) && layers[c.n0] != -1 && !isOutput(c.n1) )
             {
                 int n1layer = layers[c.n0] + 1;
                 if ( n1layer > layers[c.n1] )
