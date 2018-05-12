@@ -20,7 +20,7 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
    initStdDev(0.6),
    defStdDev(0.2),
    relStdDev(0.5),
-   c12(1), c3(1),
+   c12(1), c3(5),
    dThreshold(3)
 {
     current_inno = nbInputs*nbOutputs; // Initial connections of genomes

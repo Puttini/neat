@@ -17,16 +17,16 @@ def computeFitness( g ):
     fitness = 0
 
     # Construct a verity table, with a max number of iter of 5
-    score = 0 - ge.eval([0,0],5)
+    score = 0 - ge.eval([0,0,1],5)
     fitness += score*score
 
-    score = 1 - ge.eval([1,0],5)
+    score = 1 - ge.eval([1,0,1],5)
     fitness += score*score
 
-    score = 1 - ge.eval([0,1],5)
+    score = 1 - ge.eval([0,1,1],5)
     fitness += score*score
 
-    score = 0 - ge.eval([1,1],5)
+    score = 0 - ge.eval([1,1,1],5)
     fitness += score*score
 
     return fitness
@@ -35,14 +35,17 @@ def train(
         population,
         nbGenerations ):
 
-    ga = GenAlgo( 2, 1, population )
+    ga = GenAlgo( 3, 1, population )
     ga.setSeed(0)
+    ga.dThreshold = 100
+
+    d = 2
 
     for gen in range(nbGenerations+1):
         fitnesses = [ computeFitness(g) for g in ga.genomes ]
 
-        if gen%10 == 0:
-            drawBest( ga, fitnesses, nbGenerations/10+1, 5, gen/10, "Generation %d" % gen )
+        if gen%d == 0:
+            drawBest( ga, fitnesses, nbGenerations/d+1, 5, gen/d, "Generation %d" % gen )
 
         if gen < nbGenerations:
             ga.nextGen( fitnesses )
@@ -51,14 +54,14 @@ def train(
             return ga, best_ind
 
 if __name__ == "__main__":
-    ga, best = train( 150, 30 )
+    ga, best = train( 150, 10 )
 
     g = ga.genomes[best]
     ge = GraphEval(g)
     print( "Best table :" )
-    print( " 0 | 0 => %f" % ge.eval([0,0],5) )
-    print( " 0 | 1 => %f" % ge.eval([0,1],5) )
-    print( " 1 | 0 => %f" % ge.eval([1,0],5) )
-    print( " 1 | 1 => %f" % ge.eval([1,1],5) )
+    print( " 0 | 0 => %f" % ge.eval([0,0,1],5) )
+    print( " 0 | 1 => %f" % ge.eval([0,1,1],5) )
+    print( " 1 | 0 => %f" % ge.eval([1,0,1],5) )
+    print( " 1 | 1 => %f" % ge.eval([1,1,1],5) )
 
     plt.show()
