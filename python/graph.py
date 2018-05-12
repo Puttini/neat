@@ -92,6 +92,8 @@ if __name__ == "__main__":
 
     ga = neat.GenAlgo( 2, 1, 1 )
     ga.setSeed(0)
+    ga.init()
+
     g0 = ga.genomes[0]
 
     plt.subplot(2,2,2)

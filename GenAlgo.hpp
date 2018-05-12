@@ -49,12 +49,15 @@ struct GenAlgo
 
     std::default_random_engine rng;
 
+    bool is_init;
+
 // ---------------------------------------------------------------------------
 
     GenAlgo() = default;
     GenAlgo( int nbInputs, int nbOutputs, int population = 150 );
 
     void setSeed( int seed );
+    void init(); // Call this after setting parameters, and before calling any other function
 
     bool mutate_all( std::vector<Graph>& someGenomes );
     bool mutate( Graph& g );

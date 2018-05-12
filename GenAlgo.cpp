@@ -34,6 +34,11 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
     for ( int p = 0 ; p < population ; ++p )
         genomes.emplace_back( nbInputs, nbOutputs );
 
+    is_init = false;
+}
+
+void GenAlgo::init()
+{
     for ( Graph& g : genomes )
     {
         for ( Connection& c : g.connections )
@@ -41,6 +46,8 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
     }
 
     initSpecies();
+
+    is_init = true;
 }
 
 bool GenAlgo::mutate_all( std::vector<Graph>& someGenomes )
@@ -482,13 +489,15 @@ std::map<int,int> GenAlgo::actualizeSpecies( const std::vector<Graph>& newGenome
 
 std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
 {
+    assert( is_init && "You forgot to call init() function" );
+
     // Compute new fitnesses depending to the population of each species
     std::vector< std::pair<int,float> > new_fitnesses( genomes.size() );
     for ( int g = 0 ; g < genomes.size() ; ++g )
     {
         new_fitnesses[g].first = g;
         new_fitnesses[g].second =
-            fitnesses[g] * popPerSpecies[ speciesPerGenome[g] ];
+            fitnesses[g] / popPerSpecies[ speciesPerGenome[g] ];
     }
 
     // Sort the new fitnesses in descending order

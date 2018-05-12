@@ -41,9 +41,16 @@ def train(
 
     ga = GenAlgo( 3, 1, population )
     ga.setSeed(0)
+
     ga.c12 = 2
     ga.c3 = 1
-    ga.dThreshold = 10
+    ga.dThreshold = 1
+
+    ga.initStdDev = 1.0
+    ga.defStdDev = 0.5
+    ga.relStdDev = 0.2
+
+    ga.init()
 
     d = nbGenerations/5
 
