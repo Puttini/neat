@@ -9,6 +9,7 @@ struct GraphEval
 {
     GraphEval( const Graph& g );
     Vector<float> eval( const std::vector<float>& input, int nbIter = 1 );
+    void reset();
 
     const Graph& graph;
     int nbInputs;

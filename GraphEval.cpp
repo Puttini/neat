@@ -71,3 +71,8 @@ Vector<float> GraphEval::eval( const std::vector<float>& input, int nbIter )
 
     return values.segment(nbInputs,nbOutputs);
 }
+
+void GraphEval::reset()
+{
+    values.setZero();
+}

@@ -109,6 +109,7 @@ PYBIND11_MODULE( neat, m )
     ge.def( "eval", &GraphEval::eval,
             py::arg( "input" ),
             py::arg( "nbIter" ) = 1 );
+    ge.def( "reset", &GraphEval::reset );
     ge.def_readonly( "nbInputs", &GraphEval::nbInputs );
     ge.def_readonly( "nbOutputs", &GraphEval::nbOutputs );
     ge.def_readonly( "nbNodes", &GraphEval::nbNodes );
