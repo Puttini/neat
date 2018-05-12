@@ -3,7 +3,7 @@ from graph import *
 import numpy as np
 
 def drawBest( ga, fitnesses, nbRows, nbBest, row, title = None ):
-    best_inds = sorted( range(len(fitnesses)), key=lambda i: fitnesses[i] )[:-nbBest-1:-1]
+    best_inds = sorted( range(len(fitnesses)), key=lambda i: fitnesses[i] )[:nbBest]
 
     for i, idx in enumerate(best_inds):
         plt.subplot(nbRows,nbBest,row*nbBest+i+1)

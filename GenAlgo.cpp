@@ -247,7 +247,7 @@ Graph GenAlgo::crossOver(
             // Cross over of the same gene
             // There can't be overlapping connection here
             // as there is not for both children
-            if ( choice(rng) < fitness0 )
+            if ( choice(rng) < fitness1 )
                 offspring.connections.push_back(*c0);
             else
                 offspring.connections.push_back(*c1);
@@ -265,7 +265,7 @@ Graph GenAlgo::crossOver(
             // but also test conflicts
             if ( adj.coeff(c0->n0,c0->n1) )
             {
-                if ( choice(rng) < fitness0 )
+                if ( choice(rng) < fitness1 )
                     *(adj.coeffRef(c0->n0,c0->n1)) = *c0;
             }
             else if ( take_gene(rng) < pTakeNewGene )
@@ -284,7 +284,7 @@ Graph GenAlgo::crossOver(
             // but also test conflicts
             if ( adj.coeff(c1->n0,c1->n1) )
             {
-                if ( choice(rng) < fitness1 )
+                if ( choice(rng) < fitness0 )
                     *(adj.coeffRef(c1->n0,c1->n1)) = *c1;
             }
             else if ( take_gene(rng) < pTakeNewGene )
@@ -310,6 +310,9 @@ float GenAlgo::computeCompDist(
     int idx0 = 0;
     int idx1 = 0;
     float dist = 0;
+    int nb_matching_genes = 0;
+    float w0 = 0;
+    float w1 = 0;
     float coeff12 = static_cast<float>(c12) / static_cast<float>(nbMaxGenes);
     while( idx0 < g0.connections.size() || idx1 < g1.connections.size() )
     {
@@ -324,9 +327,9 @@ float GenAlgo::computeCompDist(
 
         if ( c0 && c1 && c0->inno == c1->inno )
         {
-            float w0 = c0->enabled ? c0->w : 0;
-            float w1 = c1->enabled ? c1->w : 0;
-            dist += c3 * std::abs(w0-w1);
+            w0 += c0->enabled ? c0->w : 0;
+            w1 += c1->enabled ? c1->w : 0;
+            nb_matching_genes++;
 
             idx0++;
             idx1++;
@@ -342,6 +345,9 @@ float GenAlgo::computeCompDist(
             idx1++;
         }
     }
+
+    if ( nb_matching_genes > 0 )
+        dist += c3 * std::abs(w0-w1) / nb_matching_genes;
 
     return dist;
 }
@@ -482,14 +488,14 @@ std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
     {
         new_fitnesses[g].first = g;
         new_fitnesses[g].second =
-            fitnesses[g] / popPerSpecies[ speciesPerGenome[g] ];
+            fitnesses[g] * popPerSpecies[ speciesPerGenome[g] ];
     }
 
     // Sort the new fitnesses in descending order
     std::sort( new_fitnesses.begin(), new_fitnesses.end(),
             []( const std::pair<int,float>& p0,
                 const std::pair<int,float>& p1 )
-            { return p0.second > p1.second; } );
+            { return p0.second < p1.second; } );
 
     std::vector<Graph> newGenomes;
     newGenomes.reserve( genomes.size() );
