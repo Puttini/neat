@@ -58,6 +58,9 @@ PYBIND11_MODULE( neat, m )
     graph.def( "getNbConnectionsPerNode", &Graph::getNbConnectionsPerNode );
     graph.def( "isInput", &Graph::isInput );
     graph.def( "isOutput", &Graph::isOutput );
+    graph.def( "simplify", &Graph::simplify,
+            py::arg( "keep_disabled" ) = false,
+            py::arg( "max_depth" ) = -1 );
 
     // --- GenAlgo ---
     py::class_<GenAlgo> genalgo( m, "GenAlgo" );
@@ -104,7 +107,8 @@ PYBIND11_MODULE( neat, m )
     genalgo.def( "init", &GenAlgo::init );
     genalgo.def( "initSpecies", &GenAlgo::initSpecies );
     genalgo.def( "cleanUselessNodes", &GenAlgo::cleanUselessNodes,
-                 py::arg( "keep_disabled" ) = true );
+                 py::arg( "keep_disabled" ) = true,
+                 py::arg( "max_depth" ) = -1 );
     genalgo.def( "actualizeSpecies", &GenAlgo::actualizeSpecies );
     genalgo.def( "nextGen", &GenAlgo::nextGen );
 

@@ -2,6 +2,8 @@ from neat import *
 from graph import *
 import numpy as np
 
+nb_eval = 3
+
 def drawBest( ga, fitnesses, nbRows, nbBest, row, title = None ):
     best_inds = sorted( range(len(fitnesses)), key=lambda i: fitnesses[i] )[:nbBest]
 
@@ -18,20 +20,22 @@ def computeFitness( g ):
 
     # Construct a verity table, with a max number of iter of 5
     ge.reset()
-    score = 0 - ge.eval([0,0,1],3)
+    score = 0 - ge.eval([0,0,1],nb_eval)
     fitness += score*score
 
     ge.reset()
-    score = 1 - ge.eval([1,0,1],3)
+    score = 1 - ge.eval([1,0,1],nb_eval)
     fitness += score*score
 
     ge.reset()
-    score = 1 - ge.eval([0,1,1],3)
+    score = 1 - ge.eval([0,1,1],nb_eval)
     fitness += score*score
 
     ge.reset()
-    score = 0 - ge.eval([1,1,1],3)
+    score = 0 - ge.eval([1,1,1],nb_eval)
     fitness += score*score
+
+    fitness += g.getNbNodes()/10
 
     return pow( fitness, 1 )
 
@@ -88,21 +92,19 @@ if __name__ == "__main__":
     ge = GraphEval(g)
     print( "Best table :" )
     ge.reset()
-    print( " 0 | 0 => %f" % ge.eval([0,0,1],3) )
+    print( " 0 | 0 => %f" % ge.eval([0,0,1],nb_eval) )
     ge.reset()
-    print( " 0 | 1 => %f" % ge.eval([0,1,1],3) )
+    print( " 0 | 1 => %f" % ge.eval([0,1,1],nb_eval) )
     ge.reset()
-    print( " 1 | 0 => %f" % ge.eval([1,0,1],3) )
+    print( " 1 | 0 => %f" % ge.eval([1,0,1],nb_eval) )
     ge.reset()
-    print( " 1 | 1 => %f" % ge.eval([1,1,1],3) )
+    print( " 1 | 1 => %f" % ge.eval([1,1,1],nb_eval) )
 
     plt.figure( "Final network" )
 
-    import ipdb; ipdb.set_trace()
     plt.subplot( 2, 1, 1 )
     drawGraph( g )
-    ga.cleanUselessNodes( keep_disabled=False )
     plt.subplot( 2, 1, 2 )
-    drawGraph( g )
+    drawGraph( g.simplify() )
 
     plt.show()

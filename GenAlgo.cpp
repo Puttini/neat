@@ -556,7 +556,7 @@ std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
     return speciesMap;
 }
 
-void GenAlgo::cleanUselessNodes( bool keep_disabled )
+void GenAlgo::cleanUselessNodes( bool keep_disabled, int max_depth )
 {
     std::vector<bool> used_inno( current_inno, false );
     std::vector<bool> used_nodes( current_node, false );
@@ -574,9 +574,11 @@ void GenAlgo::cleanUselessNodes( bool keep_disabled )
         for ( int i = nbInputs ; i < nbInputs + nbOutputs ; ++i )
             local_used[i] = true;
 
+        int current_depth = 0;
+
         // Browse the graph backward to see what node interacts with the outputs
         bool changed = true;
-        while( changed )
+        while( changed && ( max_depth == -1 || current_depth < max_depth ) )
         {
             changed = false;
             for ( auto it = local_connections.begin() ;
@@ -607,6 +609,8 @@ void GenAlgo::cleanUselessNodes( bool keep_disabled )
                     ++it;
                 }
             }
+
+            current_depth++;
         }
     }
 

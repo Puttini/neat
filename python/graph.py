@@ -10,7 +10,10 @@ def drawGraph( graph, use_pos=True, draw_dis=False ):
     if use_pos:
         # Compute position of nodes
         layers = graph.getLayers(draw_dis)
-        nbLayers = layers[ graph.nbInputs ] + 1
+        try:
+            nbLayers = layers[ graph.nbInputs ] + 1
+        except IndexError:
+            import ipdb; ipdb.set_trace()
         layerSizes = [ 0 ] * nbLayers
         for l in layers:
             if l != -1:

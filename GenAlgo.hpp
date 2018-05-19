@@ -78,7 +78,7 @@ struct GenAlgo
 
     void initSpecies();
 
-    void cleanUselessNodes( bool keep_disabled = true );
+    void cleanUselessNodes( bool keep_disabled = true, int max_depth = -1 );
 
     // Returns the map of old species VS new species, so you can trace them
     std::map<int,int> actualizeSpecies( const std::vector<Graph>& newGenomes );
