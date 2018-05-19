@@ -74,7 +74,8 @@ PYBIND11_MODULE( neat, m )
     genalgo.def_readwrite( "pEnableConnection", &GenAlgo::pEnableConnection );
     genalgo.def_readwrite( "pTakeNewGene", &GenAlgo::pTakeNewGene );
     genalgo.def_readwrite( "nbSurvivors", &GenAlgo::nbSurvivors );
-    genalgo.def_readwrite( "nbParents", &GenAlgo::nbParents );
+    genalgo.def_readwrite( "nbChildren", &GenAlgo::nbChildren );
+    genalgo.def_readwrite( "interSpeciesRate", &GenAlgo::interSpeciesRate );
     genalgo.def_readwrite( "nbMaxTry", &GenAlgo::nbMaxTry );
     genalgo.def_readwrite( "initStdDev", &GenAlgo::initStdDev );
     genalgo.def_readwrite( "defStdDev", &GenAlgo::defStdDev );

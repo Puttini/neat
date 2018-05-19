@@ -21,10 +21,11 @@ struct GenAlgo
 
     // During the computation of the next generation,
     // we keep nbSurvivors genomes, and compute (population-nbSurvivors)
-    // offsprings among parents
+    // offsprings from best selected genomes
     // We mutate all new genomes (survivors and offsprings)
     int nbSurvivors;
-    int nbParents;
+    int nbChildren;
+    float interSpeciesRate;
 
     int nbMaxTry;
 

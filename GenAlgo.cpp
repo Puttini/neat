@@ -15,6 +15,8 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
 
    // If this probability is < 1, a cross-over can have invalid nodes...
    pTakeNewGene(1.0),
+   nbChildren(3),
+   interSpeciesRate(0.005),
 
    nbMaxTry(20),
    initStdDev(0.6),
@@ -26,8 +28,7 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
     current_inno = nbInputs*nbOutputs; // Initial connections of genomes
     current_generation = 0;
     current_node = nbInputs + nbOutputs;
-    nbSurvivors = population/5;
-    nbParents = population/3;
+    nbSurvivors = population/30;
 
     genomes.reserve(population);
 
@@ -507,28 +508,37 @@ std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
             { return p0.second < p1.second; } );
 
     std::vector<Graph> newGenomes;
-    newGenomes.reserve( genomes.size() );
+    newGenomes.reserve( population );
 
     // --- Get survivors ---
-    std::uniform_int_distribution<int> parent(0,nbParents-1);
-    int g = 0;
-    for ( ; g < nbSurvivors ; ++g )
+    for ( int g = 0 ; g < nbSurvivors ; ++g )
         newGenomes.push_back( genomes[ new_fitnesses[g].first ] );
 
     // --- Proceed to cross over ---
-    // For now, we don't mind about species
-    // All the genomes can be crossed over...
-    for ( ; g < population ; ++g )
+    std::uniform_real_distribution<float> interSpeciesChance(0,1);
+    int p0, p1;
+    for ( int g = 0 ; g < population-nbSurvivors ; ++g )
     {
-        // Chose parents
+        // Find the first matching matching parent from the same species
+        // (if not interSpecies)
         int nbTry = 0;
-        int p0, p1;
+
+        // Changing the first parent p0, reset the matching p1
+        if ( g%nbChildren == 0 )
+        {
+            int p0 = g/3;
+            int p1 = p0;
+        }
+
+        bool interSpecies = (popPerSpecies.size() > 1)
+            && ( popPerSpecies[p0] == 1
+               || interSpeciesChance(rng) < interSpeciesRate );
         do
         {
-            p0 = parent(rng);
-            p1 = parent(rng);
-            nbTry++;
-        } while ( nbTry < nbMaxTry && p0 == p1 ) ;
+            p1++;
+            if ( p1 >= genomes.size() )
+                p1 = 0;
+        } while( speciesPerGenome[p1] != speciesPerGenome[p0] ^ interSpecies );
 
         newGenomes.push_back( crossOver(
                     genomes[ new_fitnesses[p0].first ],
@@ -537,7 +547,9 @@ std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
                     new_fitnesses[p1].second ) );
     }
 
-    mutate_all( newGenomes );
+    // Don't mutate survivors... ?
+    for ( int g = nbSurvivors ; g < population ; ++g )
+        mutate( newGenomes[g] );
     std::map<int,int> speciesMap = actualizeSpecies( newGenomes );
     genomes.swap( newGenomes );
     current_generation++;

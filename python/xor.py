@@ -18,22 +18,22 @@ def computeFitness( g ):
 
     # Construct a verity table, with a max number of iter of 5
     ge.reset()
-    score = 0 - ge.eval([0,0,1],5)
+    score = 0 - ge.eval([0,0,1],3)
     fitness += score*score
 
     ge.reset()
-    score = 1 - ge.eval([1,0,1],5)
+    score = 1 - ge.eval([1,0,1],3)
     fitness += score*score
 
     ge.reset()
-    score = 1 - ge.eval([0,1,1],5)
+    score = 1 - ge.eval([0,1,1],3)
     fitness += score*score
 
     ge.reset()
-    score = 0 - ge.eval([1,1,1],5)
+    score = 0 - ge.eval([1,1,1],3)
     fitness += score*score
 
-    return fitness
+    return pow( fitness, 1 )
 
 def train(
         population,
@@ -42,9 +42,9 @@ def train(
     ga = GenAlgo( 3, 1, population )
     ga.setSeed(0)
 
-    ga.c12 = 2
-    ga.c3 = 1
-    ga.dThreshold = 1
+    ga.c12 = 1
+    ga.c3 = 2
+    ga.dThreshold = 0.5
 
     ga.initStdDev = 1.0
     ga.defStdDev = 0.5
@@ -58,7 +58,7 @@ def train(
         fitnesses = [ computeFitness(g) for g in ga.genomes ]
 
         mean_fitness = np.array( fitnesses ).mean()
-        print( "Generation %3d got a score of %2.6f with %3d species"
+        print( "Generation %3d got a score of %9.6f with %3d species"
                 % (gen,mean_fitness,len(ga.speciesRepresentants)) )
 
         if gen%d == 0:
@@ -87,12 +87,12 @@ if __name__ == "__main__":
     ge = GraphEval(g)
     print( "Best table :" )
     ge.reset()
-    print( " 0 | 0 => %f" % ge.eval([0,0,1],5) )
+    print( " 0 | 0 => %f" % ge.eval([0,0,1],3) )
     ge.reset()
-    print( " 0 | 1 => %f" % ge.eval([0,1,1],5) )
+    print( " 0 | 1 => %f" % ge.eval([0,1,1],3) )
     ge.reset()
-    print( " 1 | 0 => %f" % ge.eval([1,0,1],5) )
+    print( " 1 | 0 => %f" % ge.eval([1,0,1],3) )
     ge.reset()
-    print( " 1 | 1 => %f" % ge.eval([1,1,1],5) )
+    print( " 1 | 1 => %f" % ge.eval([1,1,1],3) )
 
     plt.show()
