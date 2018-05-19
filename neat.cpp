@@ -7,6 +7,7 @@
 #include "types.hpp"
 #include "Graph.hpp"
 #include "GenAlgo.hpp"
+#include "GraphEval.hpp"
 
 namespace py = pybind11;
 
@@ -47,12 +48,19 @@ PYBIND11_MODULE( neat, m )
     graph.def_readwrite( "connections", &Graph::connections );
     graph.def_readwrite( "nbInputs", &Graph::nbInputs );
     graph.def_readwrite( "nbOutputs", &Graph::nbOutputs );
-    graph.def( "getNbNodes", &Graph::getNbNodes );
-    graph.def( "getLayers", &Graph::getLayers );
+    graph.def( "getNbNodes", &Graph::getNbNodes,
+               py::arg( "use_disabled" ) = true );
+    graph.def( "getLayers", &Graph::getLayers,
+               py::arg( "use_disabled" ) = true );
+    graph.def( "getMaxNode", &Graph::getMaxNode,
+               py::arg( "use_disabled" ) = true );
     graph.def( "getAdjacencyMatrix", &Graph::getAdjacencyMatrix );
     graph.def( "getNbConnectionsPerNode", &Graph::getNbConnectionsPerNode );
     graph.def( "isInput", &Graph::isInput );
     graph.def( "isOutput", &Graph::isOutput );
+    graph.def( "simplify", &Graph::simplify,
+            py::arg( "keep_disabled" ) = false,
+            py::arg( "max_depth" ) = -1 );
 
     // --- GenAlgo ---
     py::class_<GenAlgo> genalgo( m, "GenAlgo" );
@@ -69,8 +77,10 @@ PYBIND11_MODULE( neat, m )
     genalgo.def_readwrite( "pEnableConnection", &GenAlgo::pEnableConnection );
     genalgo.def_readwrite( "pTakeNewGene", &GenAlgo::pTakeNewGene );
     genalgo.def_readwrite( "nbSurvivors", &GenAlgo::nbSurvivors );
-    genalgo.def_readwrite( "nbParents", &GenAlgo::nbParents );
+    genalgo.def_readwrite( "nbChildren", &GenAlgo::nbChildren );
+    genalgo.def_readwrite( "interSpeciesRate", &GenAlgo::interSpeciesRate );
     genalgo.def_readwrite( "nbMaxTry", &GenAlgo::nbMaxTry );
+    genalgo.def_readwrite( "initStdDev", &GenAlgo::initStdDev );
     genalgo.def_readwrite( "defStdDev", &GenAlgo::defStdDev );
     genalgo.def_readwrite( "relStdDev", &GenAlgo::relStdDev );
     genalgo.def_readwrite( "c12", &GenAlgo::c12 );
@@ -94,7 +104,26 @@ PYBIND11_MODULE( neat, m )
     genalgo.def( "crossOver", &GenAlgo::crossOver );
     genalgo.def( "getNbMaxGenes", &GenAlgo::getNbMaxGenes );
     genalgo.def( "computeCompDist", &GenAlgo::computeCompDist );
+    genalgo.def( "init", &GenAlgo::init );
     genalgo.def( "initSpecies", &GenAlgo::initSpecies );
+    genalgo.def( "cleanUselessNodes", &GenAlgo::cleanUselessNodes,
+                 py::arg( "keep_disabled" ) = true,
+                 py::arg( "max_depth" ) = -1 );
     genalgo.def( "actualizeSpecies", &GenAlgo::actualizeSpecies );
     genalgo.def( "nextGen", &GenAlgo::nextGen );
+
+    // --- GraphEval ---
+    py::class_<GraphEval> ge( m, "GraphEval" );
+    ge.def( py::init<const Graph&>() );
+    ge.def( "eval", &GraphEval::eval,
+            py::arg( "input" ),
+            py::arg( "nbIter" ) = 1 );
+    ge.def( "reset", &GraphEval::reset );
+    ge.def_readonly( "nbInputs", &GraphEval::nbInputs );
+    ge.def_readonly( "nbOutputs", &GraphEval::nbOutputs );
+    ge.def_readonly( "nbNodes", &GraphEval::nbNodes );
+    ge.def_readonly( "adj", &GraphEval::adj );
+    ge.def_readonly( "values", &GraphEval::values );
+    ge.def_readonly( "nodeMap", &GraphEval::nodeMap );
+    ge.def( "graph", []( const GraphEval& ge ){ return ge.graph; } );
 }

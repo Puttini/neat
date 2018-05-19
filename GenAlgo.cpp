@@ -15,25 +15,31 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
 
    // If this probability is < 1, a cross-over can have invalid nodes...
    pTakeNewGene(1.0),
+   nbChildren(3),
+   interSpeciesRate(0.005),
 
    nbMaxTry(20),
    initStdDev(0.6),
    defStdDev(0.2),
    relStdDev(0.5),
-   c12(1), c3(1),
+   c12(1), c3(5),
    dThreshold(3)
 {
     current_inno = nbInputs*nbOutputs; // Initial connections of genomes
     current_generation = 0;
     current_node = nbInputs + nbOutputs;
-    nbSurvivors = population/5;
-    nbParents = population/3;
+    nbSurvivors = population/30;
 
     genomes.reserve(population);
 
     for ( int p = 0 ; p < population ; ++p )
         genomes.emplace_back( nbInputs, nbOutputs );
 
+    is_init = false;
+}
+
+void GenAlgo::init()
+{
     for ( Graph& g : genomes )
     {
         for ( Connection& c : g.connections )
@@ -41,6 +47,8 @@ GenAlgo::GenAlgo( int nbInputs, int nbOutputs, int population )
     }
 
     initSpecies();
+
+    is_init = true;
 }
 
 bool GenAlgo::mutate_all( std::vector<Graph>& someGenomes )
@@ -218,6 +226,7 @@ Graph GenAlgo::crossOver(
         float fitness0, float fitness1 )
 {
     Graph offspring( nbInputs, nbOutputs, false );
+    offspring.connections.reserve( g0.connections.size() + g1.connections.size() );
 
     std::uniform_real_distribution<float> choice(0,fitness0+fitness1);
     std::uniform_real_distribution<float> take_gene(0,1);
@@ -246,8 +255,7 @@ Graph GenAlgo::crossOver(
             // Cross over of the same gene
             // There can't be overlapping connection here
             // as there is not for both children
-
-            if ( choice(rng) < fitness0 )
+            if ( choice(rng) < fitness1 )
                 offspring.connections.push_back(*c0);
             else
                 offspring.connections.push_back(*c1);
@@ -265,7 +273,7 @@ Graph GenAlgo::crossOver(
             // but also test conflicts
             if ( adj.coeff(c0->n0,c0->n1) )
             {
-                if ( choice(rng) < fitness0 )
+                if ( choice(rng) < fitness1 )
                     *(adj.coeffRef(c0->n0,c0->n1)) = *c0;
             }
             else if ( take_gene(rng) < pTakeNewGene )
@@ -310,6 +318,9 @@ float GenAlgo::computeCompDist(
     int idx0 = 0;
     int idx1 = 0;
     float dist = 0;
+    int nb_matching_genes = 0;
+    float w0 = 0;
+    float w1 = 0;
     float coeff12 = static_cast<float>(c12) / static_cast<float>(nbMaxGenes);
     while( idx0 < g0.connections.size() || idx1 < g1.connections.size() )
     {
@@ -324,9 +335,9 @@ float GenAlgo::computeCompDist(
 
         if ( c0 && c1 && c0->inno == c1->inno )
         {
-            float w0 = c0->enabled ? c0->w : 0;
-            float w1 = c1->enabled ? c1->w : 0;
-            dist += c3 * std::abs(w0-w1);
+            w0 += c0->enabled ? c0->w : 0;
+            w1 += c1->enabled ? c1->w : 0;
+            nb_matching_genes++;
 
             idx0++;
             idx1++;
@@ -342,6 +353,9 @@ float GenAlgo::computeCompDist(
             idx1++;
         }
     }
+
+    if ( nb_matching_genes > 0 )
+        dist += c3 * std::abs(w0-w1) / nb_matching_genes;
 
     return dist;
 }
@@ -476,6 +490,8 @@ std::map<int,int> GenAlgo::actualizeSpecies( const std::vector<Graph>& newGenome
 
 std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
 {
+    assert( is_init && "You forgot to call init() function" );
+
     // Compute new fitnesses depending to the population of each species
     std::vector< std::pair<int,float> > new_fitnesses( genomes.size() );
     for ( int g = 0 ; g < genomes.size() ; ++g )
@@ -489,31 +505,40 @@ std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
     std::sort( new_fitnesses.begin(), new_fitnesses.end(),
             []( const std::pair<int,float>& p0,
                 const std::pair<int,float>& p1 )
-            { return p0.second > p1.second; } );
+            { return p0.second < p1.second; } );
 
     std::vector<Graph> newGenomes;
-    newGenomes.reserve( genomes.size() );
+    newGenomes.reserve( population );
 
     // --- Get survivors ---
-    std::uniform_int_distribution<int> parent(0,nbParents-1);
-    int g = 0;
-    for ( ; g < nbSurvivors ; ++g )
+    for ( int g = 0 ; g < nbSurvivors ; ++g )
         newGenomes.push_back( genomes[ new_fitnesses[g].first ] );
 
     // --- Proceed to cross over ---
-    // For now, we don't mind about species
-    // All the genomes can be crossed over...
-    for ( ; g < population ; ++g )
+    std::uniform_real_distribution<float> interSpeciesChance(0,1);
+    int p0, p1;
+    for ( int g = 0 ; g < population-nbSurvivors ; ++g )
     {
-        // Chose parents
+        // Find the first matching matching parent from the same species
+        // (if not interSpecies)
         int nbTry = 0;
-        int p0, p1;
+
+        // Changing the first parent p0, reset the matching p1
+        if ( g%nbChildren == 0 )
+        {
+            int p0 = g/3;
+            int p1 = p0;
+        }
+
+        bool interSpecies = (popPerSpecies.size() > 1)
+            && ( popPerSpecies[p0] == 1
+               || interSpeciesChance(rng) < interSpeciesRate );
         do
         {
-            p0 = parent(rng);
-            p1 = parent(rng);
-            nbTry++;
-        } while ( nbTry < nbMaxTry && p0 == p1 ) ;
+            p1++;
+            if ( p1 >= genomes.size() )
+                p1 = 0;
+        } while( speciesPerGenome[p1] != speciesPerGenome[p0] ^ interSpecies );
 
         newGenomes.push_back( crossOver(
                     genomes[ new_fitnesses[p0].first ],
@@ -522,8 +547,114 @@ std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
                     new_fitnesses[p1].second ) );
     }
 
-    mutate_all( newGenomes );
+    // Don't mutate survivors... ?
+    for ( int g = nbSurvivors ; g < population ; ++g )
+        mutate( newGenomes[g] );
     std::map<int,int> speciesMap = actualizeSpecies( newGenomes );
     genomes.swap( newGenomes );
+    current_generation++;
     return speciesMap;
+}
+
+void GenAlgo::cleanUselessNodes( bool keep_disabled, int max_depth )
+{
+    std::vector<bool> used_inno( current_inno, false );
+    std::vector<bool> used_nodes( current_node, false );
+
+    for ( int i = 0 ; i < nbInputs + nbOutputs ; ++i )
+        used_nodes[i] = true;
+
+    // Look for used nodes and innovations
+    for ( Graph& g : genomes )
+    {
+        std::vector<bool> local_used( current_node, false );
+        std::list<Connection> local_connections(
+                g.connections.begin(), g.connections.end() );
+
+        for ( int i = nbInputs ; i < nbInputs + nbOutputs ; ++i )
+            local_used[i] = true;
+
+        int current_depth = 0;
+
+        // Browse the graph backward to see what node interacts with the outputs
+        bool changed = true;
+        while( changed && ( max_depth == -1 || current_depth < max_depth ) )
+        {
+            changed = false;
+            for ( auto it = local_connections.begin() ;
+                    it != local_connections.end() ;
+                    /* manual incr */ )
+            {
+                if ( keep_disabled || it->enabled )
+                {
+                    if ( local_used[it->n1] )
+                    {
+                        if ( !local_used[it->n0] )
+                        {
+                            changed = true;
+                            local_used[it->n0] = true;
+                            used_nodes[it->n0] = true;
+                        }
+
+                        used_inno[it->inno] = true;
+                        it = local_connections.erase(it);
+                    }
+                    else
+                    {
+                        ++it;
+                    }
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+
+            current_depth++;
+        }
+    }
+
+    // Construct maps
+    std::map<int,int> inno_map;
+    int new_current_inno = 0;
+    for ( int i = 0 ; i < current_inno ; ++i )
+    {
+        if ( used_inno[i] )
+        {
+            inno_map[i] = new_current_inno;
+            new_current_inno++;
+        }
+    }
+
+    std::map<int,int> node_map;
+    int new_current_node = 0;
+    for ( int i = 0 ; i < current_node ; ++i )
+    {
+        if ( used_nodes[i] )
+        {
+            node_map[i] = new_current_node;
+            new_current_node++;
+        }
+    }
+
+    // Construct new connections
+    for ( Graph& g : genomes )
+    {
+        std::vector<Connection> new_connections;
+        new_connections.reserve( g.connections.size() );
+        for ( Connection& c : g.connections )
+        {
+            auto new_inno = inno_map.find( c.inno );
+            if ( new_inno != inno_map.end() )
+            {
+                new_connections.emplace_back( node_map[c.n0], node_map[c.n1],
+                        c.w, new_inno->second, c.enabled );
+            }
+        }
+        g.connections.swap( new_connections );
+    }
+
+    // Actualize current_node and current_inno
+    current_node = new_current_node;
+    current_inno = new_current_inno;
 }

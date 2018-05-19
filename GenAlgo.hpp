@@ -21,10 +21,11 @@ struct GenAlgo
 
     // During the computation of the next generation,
     // we keep nbSurvivors genomes, and compute (population-nbSurvivors)
-    // offsprings among parents
+    // offsprings from best selected genomes
     // We mutate all new genomes (survivors and offsprings)
     int nbSurvivors;
-    int nbParents;
+    int nbChildren;
+    float interSpeciesRate;
 
     int nbMaxTry;
 
@@ -49,12 +50,15 @@ struct GenAlgo
 
     std::default_random_engine rng;
 
+    bool is_init;
+
 // ---------------------------------------------------------------------------
 
     GenAlgo() = default;
     GenAlgo( int nbInputs, int nbOutputs, int population = 150 );
 
     void setSeed( int seed );
+    void init(); // Call this after setting parameters, and before calling any other function
 
     bool mutate_all( std::vector<Graph>& someGenomes );
     bool mutate( Graph& g );
@@ -73,6 +77,8 @@ struct GenAlgo
             int nbMaxGenes ) const;
 
     void initSpecies();
+
+    void cleanUselessNodes( bool keep_disabled = true, int max_depth = -1 );
 
     // Returns the map of old species VS new species, so you can trace them
     std::map<int,int> actualizeSpecies( const std::vector<Graph>& newGenomes );
