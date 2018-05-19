@@ -23,6 +23,9 @@ Graph::Graph( int nbInputs, int nbOutputs, bool init_connect )
 int Graph::getNbNodes( bool use_disabled ) const
 {
     std::set<int> nodes;
+    for ( int i = 0 ; i < nbInputs + nbOutputs ; ++i )
+        nodes.insert( i );
+
     for ( const Connection& c : connections )
     {
         if ( c.enabled )
@@ -37,7 +40,7 @@ int Graph::getNbNodes( bool use_disabled ) const
 
 int Graph::getMaxNode( bool use_disabled ) const
 {
-    int maxNode = 0;
+    int maxNode = nbInputs + nbOutputs - 1;
     for ( const Connection& c : connections )
     {
         if ( use_disabled || c.enabled )

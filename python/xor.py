@@ -35,7 +35,7 @@ def computeFitness( g ):
     score = 0 - ge.eval([1,1,1],nb_eval)
     fitness += score*score
 
-    fitness += g.getNbNodes()/10
+    fitness += g.getNbNodes()/50
 
     return pow( fitness, 1 )
 
@@ -102,9 +102,11 @@ if __name__ == "__main__":
 
     plt.figure( "Final network" )
 
+    the_best = g.simplify()
+
     plt.subplot( 2, 1, 1 )
     drawGraph( g )
     plt.subplot( 2, 1, 2 )
-    drawGraph( g.simplify() )
+    drawGraph( the_best, use_pos=False )
 
     plt.show()
