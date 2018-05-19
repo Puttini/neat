@@ -15,8 +15,8 @@ struct Connection
     bool enabled;
 
     Connection() = default;
-    Connection( int n0, int n1, float w, int inno = 0 )
-     : n0(n0), n1(n1), w(w), inno(inno), enabled(true)
+    Connection( int n0, int n1, float w, int inno = 0, bool enabled=true )
+     : n0(n0), n1(n1), w(w), inno(inno), enabled(enabled)
     {}
 };
 

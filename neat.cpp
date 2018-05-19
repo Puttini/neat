@@ -103,6 +103,8 @@ PYBIND11_MODULE( neat, m )
     genalgo.def( "computeCompDist", &GenAlgo::computeCompDist );
     genalgo.def( "init", &GenAlgo::init );
     genalgo.def( "initSpecies", &GenAlgo::initSpecies );
+    genalgo.def( "cleanUselessNodes", &GenAlgo::cleanUselessNodes,
+                 py::arg( "keep_disabled" ) = true );
     genalgo.def( "actualizeSpecies", &GenAlgo::actualizeSpecies );
     genalgo.def( "nextGen", &GenAlgo::nextGen );
 

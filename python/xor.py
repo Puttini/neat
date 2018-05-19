@@ -81,6 +81,7 @@ if __name__ == "__main__":
         pop = int(sys.argv[1])
         gen = int(sys.argv[2])
 
+    plt.figure( "Training result" )
     ga, best = train( pop, gen )
 
     g = ga.genomes[best]
@@ -94,5 +95,14 @@ if __name__ == "__main__":
     print( " 1 | 0 => %f" % ge.eval([1,0,1],3) )
     ge.reset()
     print( " 1 | 1 => %f" % ge.eval([1,1,1],3) )
+
+    plt.figure( "Final network" )
+
+    import ipdb; ipdb.set_trace()
+    plt.subplot( 2, 1, 1 )
+    drawGraph( g )
+    ga.cleanUselessNodes( keep_disabled=False )
+    plt.subplot( 2, 1, 2 )
+    drawGraph( g )
 
     plt.show()

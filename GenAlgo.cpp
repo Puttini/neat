@@ -555,3 +555,102 @@ std::map<int,int> GenAlgo::nextGen( const std::vector<float>& fitnesses )
     current_generation++;
     return speciesMap;
 }
+
+void GenAlgo::cleanUselessNodes( bool keep_disabled )
+{
+    std::vector<bool> used_inno( current_inno, false );
+    std::vector<bool> used_nodes( current_node, false );
+
+    for ( int i = 0 ; i < nbInputs + nbOutputs ; ++i )
+        used_nodes[i] = true;
+
+    // Look for used nodes and innovations
+    for ( Graph& g : genomes )
+    {
+        std::vector<bool> local_used( current_node, false );
+        std::list<Connection> local_connections(
+                g.connections.begin(), g.connections.end() );
+
+        for ( int i = nbInputs ; i < nbInputs + nbOutputs ; ++i )
+            local_used[i] = true;
+
+        // Browse the graph backward to see what node interacts with the outputs
+        bool changed = true;
+        while( changed )
+        {
+            changed = false;
+            for ( auto it = local_connections.begin() ;
+                    it != local_connections.end() ;
+                    /* manual incr */ )
+            {
+                if ( keep_disabled || it->enabled )
+                {
+                    if ( local_used[it->n1] )
+                    {
+                        if ( !local_used[it->n0] )
+                        {
+                            changed = true;
+                            local_used[it->n0] = true;
+                            used_nodes[it->n0] = true;
+                        }
+
+                        used_inno[it->inno] = true;
+                        it = local_connections.erase(it);
+                    }
+                    else
+                    {
+                        ++it;
+                    }
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+        }
+    }
+
+    // Construct maps
+    std::map<int,int> inno_map;
+    int new_current_inno = 0;
+    for ( int i = 0 ; i < current_inno ; ++i )
+    {
+        if ( used_inno[i] )
+        {
+            inno_map[i] = new_current_inno;
+            new_current_inno++;
+        }
+    }
+
+    std::map<int,int> node_map;
+    int new_current_node = 0;
+    for ( int i = 0 ; i < current_node ; ++i )
+    {
+        if ( used_nodes[i] )
+        {
+            node_map[i] = new_current_node;
+            new_current_node++;
+        }
+    }
+
+    // Construct new connections
+    for ( Graph& g : genomes )
+    {
+        std::vector<Connection> new_connections;
+        new_connections.reserve( g.connections.size() );
+        for ( Connection& c : g.connections )
+        {
+            auto new_inno = inno_map.find( c.inno );
+            if ( new_inno != inno_map.end() )
+            {
+                new_connections.emplace_back( node_map[c.n0], node_map[c.n1],
+                        c.w, new_inno->second, c.enabled );
+            }
+        }
+        g.connections.swap( new_connections );
+    }
+
+    // Actualize current_node and current_inno
+    current_node = new_current_node;
+    current_inno = new_current_inno;
+}
