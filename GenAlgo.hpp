@@ -24,6 +24,7 @@ struct GenAlgo
     // offsprings from best selected genomes
     // We mutate all new genomes (survivors and offsprings)
     int nbSurvivors;
+	int nbSpouses;
     int nbChildren;
     float interSpeciesRate;
 

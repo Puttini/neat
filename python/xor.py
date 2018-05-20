@@ -48,11 +48,13 @@ def train(
 
     ga.c12 = 1
     ga.c3 = 2
-    ga.dThreshold = 0.5
+    ga.dThreshold = 1
 
     ga.initStdDev = 1.0
     ga.defStdDev = 0.5
     ga.relStdDev = 0.2
+
+    ga.nbChildren = 3
 
     ga.init()
 
@@ -107,6 +109,6 @@ if __name__ == "__main__":
     plt.subplot( 2, 1, 1 )
     drawGraph( g )
     plt.subplot( 2, 1, 2 )
-    drawGraph( the_best, use_pos=False )
+    drawGraph( the_best, use_pos=True )
 
     plt.show()
